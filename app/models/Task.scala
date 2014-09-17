@@ -26,7 +26,7 @@ object Task {
     SQL("insert into task (label) values ({label})").on(
       'label -> label
     ).executeUpdate()
-      }
+    }
    }  
   
   def delete(id: Long) {
@@ -34,7 +34,7 @@ object Task {
     SQL("delete from task where id = {id}").on(
       'id -> id
     ).executeUpdate()
-      }
+    }
    }
   
 }
