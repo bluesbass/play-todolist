@@ -4,14 +4,17 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import models.Task
 
 object Application extends Controller {
+
+  def tasks = Action {
+   Ok(views.html.index(Task.all(), taskForm))
+   }
 
   def index = Action {
     Redirect(routes.Application.tasks)
   }
-
-  def tasks = TODO
 
   def newTask = TODO
 
