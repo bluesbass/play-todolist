@@ -1,5 +1,7 @@
 # Play Todolist
 
-Una app de prueba.
+Practicas de MADS. Play TodoList
 
-Pendiente: Subirlo a Heroku
+# Heroku
+
+Puedes probar el despliegue de Heroku pulsando en este enlace
