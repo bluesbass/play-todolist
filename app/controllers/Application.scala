@@ -11,6 +11,7 @@ import models.Task
 
 object Application extends Controller {
 
+  //Estructura Json para mostrar las Tareas
   implicit val taskWrites: Writes[Task] = (
     (JsPath \ "id").write[Long] and
     (JsPath \ "label").write[String]
@@ -20,20 +21,18 @@ object Application extends Controller {
       "label" -> nonEmptyText
    ) 
 
+  //Se ha puesto que al acceder a index se cargue el form de la practica anterior para poder seguir utilizandolo
   def index = Action {
     Ok(views.html.index(Task.all(), taskForm))
   }
 
-
-  /*def tasks = Action {
-   Ok(views.html.index(Task.all(), taskForm))
-   }*/
-
+  //Funcion que obtiene la consulta de la tarea por id y muestra el json
   def consultaTask(id: Long) = Action {
     val json = Json.toJson(Task.consultaTarea(id))
     Ok(json)
    } 
 
+   //recibe todas las tareas y las muestra en el formato json
   def tasks = Action {
     val json = Json.toJson(Task.all())
     Ok(json)
