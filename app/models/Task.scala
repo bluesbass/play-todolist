@@ -16,6 +16,10 @@ object Task {
       }
    }
 
+  def consultaTarea(id: Long): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where id={id}").on('id -> id).as(task *)
+   }
+
   def all(): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task").as(task *)
    }

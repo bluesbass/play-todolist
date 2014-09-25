@@ -21,13 +21,18 @@ object Application extends Controller {
    ) 
 
   def index = Action {
-    Redirect(routes.Application.tasks)
+    Ok(views.html.index(Task.all(), taskForm))
   }
 
 
   /*def tasks = Action {
    Ok(views.html.index(Task.all(), taskForm))
    }*/
+
+  def consultaTask(id: Long) = Action {
+    val json = Json.toJson(Task.consultaTarea(id))
+    Ok(json)
+   } 
 
   def tasks = Action {
     val json = Json.toJson(Task.all())
@@ -39,14 +44,14 @@ object Application extends Controller {
     errors => BadRequest(views.html.index(Task.all(), errors)),
     label => {
       Task.create(label)
-      Redirect(routes.Application.tasks)
+      Redirect(routes.Application.index)
       }
     )
    }  
 
   def deleteTask(id: Long) = Action {
       Task.delete(id)
-      Redirect(routes.Application.tasks)
+      Redirect(routes.Application.index)
    }
 
 }
