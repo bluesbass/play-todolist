@@ -51,6 +51,17 @@ object Application extends Controller {
       )
      }
 
+  def deleteTask(id: Long) = Action {
+    if(Task.consultaTarea(id) != Nil){
+      Task.delete(id)
+      Redirect(routes.Application.tasks)
+    }
+    else{
+      NotFound
+    }
+      
+   }
+
 /*def newTask = Action { implicit request =>
   taskForm.bindFromRequest.fold(
     errors => BadRequest(views.html.index(Task.all(), errors)),
@@ -61,9 +72,11 @@ object Application extends Controller {
     )
    }  */
 
-  def deleteTask(id: Long) = Action {
+  /*def deleteTask(id: Long) = Action {
       Task.delete(id)
       Redirect(routes.Application.index)
-   }
+   }*/
+
+
 
 }
