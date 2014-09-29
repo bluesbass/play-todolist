@@ -38,7 +38,20 @@ object Application extends Controller {
     Ok(json)
    }
 
+
+  //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
   def newTask = Action { implicit request =>
+    taskForm.bindFromRequest.fold(
+      errors => BadRequest(views.html.index(Task.all(), errors)),
+      label => {
+        Task.create(label)
+        val json = Json.toJson(Task.consultaTarea(Task.consultaId))
+        Created(json)
+        }
+      )
+     }
+
+/*def newTask = Action { implicit request =>
   taskForm.bindFromRequest.fold(
     errors => BadRequest(views.html.index(Task.all(), errors)),
     label => {
@@ -46,7 +59,7 @@ object Application extends Controller {
       Redirect(routes.Application.index)
       }
     )
-   }  
+   }  */
 
   def deleteTask(id: Long) = Action {
       Task.delete(id)
