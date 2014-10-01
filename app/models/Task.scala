@@ -16,11 +16,22 @@ object Task {
       }
    }
 
+  //Funcion para consultar una tarea por el id de la Base de datos
+  def consultaTarea(id: Long): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where id={id}").on('id -> id).as(task *)
+   }
+
+  //Funcion para consultar el ultimo id de la tarea creada
+  def consultaId : Long = DB.withConnection { implicit c =>
+      SQL("select max(id) from task").as(scalar[Long].single)
+   }
+
+  //Funcion para consultar todas las tareas añadidas en la Base de Datos
   def all(): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task").as(task *)
    }
 
-  
+  //Funcion para crear una tarea
   def create(label: String) {
    DB.withConnection { implicit c =>
     SQL("insert into task (label) values ({label})").on(
@@ -29,6 +40,7 @@ object Task {
     }
    }  
   
+  //Funcion para borrar una tarea
   def delete(id: Long) {
    DB.withConnection { implicit c =>
     SQL("delete from task where id = {id}").on(
