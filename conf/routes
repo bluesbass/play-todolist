@@ -6,7 +6,8 @@
 GET     /                           controllers.Application.index
 
 # Tasks
-GET     /tasks                      controllers.Application.tasks
+GET      /tasks                     controllers.Application.tasks
+GET     /:login/tasks               controllers.Application.user_tasks(login: String)
 GET     /tasks/:id                  controllers.Application.consultaTask(id: Long)
 POST    /tasks                      controllers.Application.newTask
 GET     /tasks/:id/delete           controllers.Application.deleteTask(id: Long)

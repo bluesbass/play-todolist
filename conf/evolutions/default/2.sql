@@ -17,6 +17,9 @@ CREATE TABLE task_user (
  INSERT INTO task_user VALUES('Magic');
  INSERT INTO task_user VALUES('Domingo');
  INSERT INTO task_user VALUES('Jesus');
+ INSERT INTO task (label,usuario) VALUES('Prueba de tarea creada por Magic','Magic');
+ INSERT INTO task (label,usuario) VALUES('Prueba 2 de tarea creada por Magic','Magic');
+ INSERT INTO task (label,usuario) VALUES('Prueba de tarea creada por Jesus','Jesus');
 
 # --- !Downs
 
