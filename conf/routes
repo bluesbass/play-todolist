@@ -9,6 +9,7 @@ GET     /                           controllers.Application.index
 GET      /tasks                     controllers.Application.tasks
 GET     /:login/tasks               controllers.Application.user_tasks(login: String)
 GET     /tasks/:id                  controllers.Application.consultaTask(id: Long)
+POST    /:login/tasks               controllers.Application.newTaskUser(login: String)
 POST    /tasks                      controllers.Application.newTask
 GET     /tasks/:id/delete           controllers.Application.deleteTask(id: Long)
 DELETE  /tasks/:id                  controllers.Application.deleteTask(id: Long)

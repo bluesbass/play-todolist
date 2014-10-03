@@ -47,11 +47,20 @@ object Application extends Controller {
     else{
       NotFound
     }
-      
-      
-    
    }
 
+
+   //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
+  def newTaskUser(login: String) = Action { implicit request =>
+    taskForm.bindFromRequest.fold(
+      errors => BadRequest(views.html.index(Task.all_user(login), errors)),
+      label => {
+        Task.create_user(label,login)
+        val json = Json.toJson(Task.consultaTarea(Task.consultaId))
+        Created(json)
+        }
+      )
+     }
 
   //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
   def newTask = Action { implicit request =>

@@ -44,10 +44,19 @@ object Task {
       SQL("select * from task where usuario='Magic'").as(task *)
    }
 
-  //Funcion para crear una tarea
+   //Funcion para crear una tarea al usuario por defecto Magic
+  def create_user(label: String,login: String) {
+   DB.withConnection { implicit c =>
+    SQL("insert into task (label,usuario) values ({label},{login})").on(
+      'label -> label,'login -> login
+    ).executeUpdate()
+    }
+   }  
+
+  //Funcion para crear una tarea al usuario por defecto Magic
   def create(label: String) {
    DB.withConnection { implicit c =>
-    SQL("insert into task (label) values ({label})").on(
+    SQL("insert into task (label,usuario) values ({label},'Magic')").on(
       'label -> label
     ).executeUpdate()
     }
