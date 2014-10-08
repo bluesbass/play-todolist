@@ -4,9 +4,9 @@
 
 # --- !Ups
  
- ALTER TABLE task ADD  fecha Date;         
+ ALTER TABLE task ADD fecha Date;         
 
- INSERT INTO task (label,usuario,fecha) VALUES('Prueba de tarea con fecha por Magic','Magic',"08/10/2014");
+ INSERT INTO task (label,usuario,fecha) VALUES('Prueba de tarea con fecha por Magic','Magic','2014-10-08');
 
 
 # --- !Downs
