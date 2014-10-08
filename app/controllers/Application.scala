@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.{Date}
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -14,7 +15,8 @@ object Application extends Controller {
   //Estructura Json para mostrar las Tareas
   implicit val taskWrites: Writes[Task] = (
     (JsPath \ "id").write[Long] and
-    (JsPath \ "label").write[String]
+    (JsPath \ "label").write[String] and
+    (JsPath \ "fecha").write[Date]
   )(unlift(Task.unapply))
 
   val taskForm = Form(

@@ -1,18 +1,21 @@
 package models
 
+import java.util.{Date}
+
 import anorm._
 import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
-case class Task(id: Long, label: String)
+case class Task(id: Long, label: String, fecha: Date)
 
 object Task {
   
    val task = {
       get[Long]("id") ~ 
-      get[String]("label") map {
-         case id~label => Task(id, label)
+      get[String]("label") ~
+      get[Date]("fecha") map {
+         case id~label~fecha => Task(id, label, fecha)
       }
    }
 
