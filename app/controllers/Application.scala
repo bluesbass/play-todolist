@@ -16,7 +16,7 @@ object Application extends Controller {
   implicit val taskWrites: Writes[Task] = (
     (JsPath \ "id").write[Long] and
     (JsPath \ "label").write[String] and
-    (JsPath \ "fecha").write[Date]
+    (JsPath \ "fecha").write[String]
   )(unlift(Task.unapply))
 
   val taskForm = Form(
