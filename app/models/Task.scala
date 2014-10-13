@@ -7,17 +7,30 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
-case class Task(id: Long, label: String, fecha: String)
+case class Task(id: Long, label: String)
 
 object Task {
   
    val task = {
       get[Long]("id") ~ 
-      get[String]("label") ~
-      get[String]("fecha") map {
-         case id~label~fecha => Task(id, label, fecha)
+      get[String]("label") map {
+         case id~label => Task(id, label)
       }
    }
+
+  def formatoFecha(fecha: String) : Boolean = { 
+    val campos  = fecha.split("-")
+    if(campos.length == 3)
+    {
+      if(campos(0).length!=4 || campos(1).length!=2 || campos(2).length!=2)
+        return false;
+      else
+        return true;
+    }
+    else
+      return false
+  }
+  
 
   def existeUser(login: String) : Long = DB.withConnection { implicit c =>
     SQL("select count(*) from task_user where usuario={login}").on('login -> login).as(scalar[Long].single)

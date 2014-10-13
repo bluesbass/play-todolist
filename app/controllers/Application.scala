@@ -15,8 +15,7 @@ object Application extends Controller {
   //Estructura Json para mostrar las Tareas
   implicit val taskWrites: Writes[Task] = (
     (JsPath \ "id").write[Long] and
-    (JsPath \ "label").write[String] and
-    (JsPath \ "fecha").write[String]
+    (JsPath \ "label").write[String]
   )(unlift(Task.unapply))
 
   val taskForm = Form(
@@ -41,7 +40,7 @@ object Application extends Controller {
    }
 
    //recibe todas las tareas del user y las muestra en el formato json 
-  def user_tasks(login: String) = Action {
+  def consultaTaskUser(login: String) = Action {
     if(Task.existeUser(login)!=0){
       val json = Json.toJson(Task.all_user(login))
       Ok(json)  
@@ -51,6 +50,18 @@ object Application extends Controller {
     }
    }
 
+
+  //recibe todas las tareas del user en una fecha y las muestra en el formato json 
+  def consultaTaskUserFecha(login: String, fecha : String) = Action {
+    Task.formatoFecha(fecha)
+    if(Task.existeUser(login)!=0 && Task.formatoFecha(fecha)==true){
+      val json = Json.toJson(Task.all_user(login))
+       Ok(json)  
+    }
+    else{
+      NotFound
+    }
+   }
 
    //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
   def newTaskUser(login: String) = Action { implicit request =>
