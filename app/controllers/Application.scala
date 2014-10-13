@@ -7,6 +7,7 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import java.text._
 import models.Task
 
 
@@ -50,11 +51,12 @@ object Application extends Controller {
     }
    }
 
-
   //recibe todas las tareas del user en una fecha y las muestra en el formato json 
   def consultaTaskUserFecha(login: String, fecha : String) = Action {
     if(Task.existeUser(login)!=0 && Task.formatoFecha(fecha)==true){
-      val json = Json.toJson(Task.all_user(login))
+      val formato = new SimpleDateFormat("YYYY-MM-DD")
+    val fechaAux = formato.parse(fecha)
+      val json = Json.toJson(Task.all_user_fecha(login,fechaAux))
        Ok(json)  
     }
     else{

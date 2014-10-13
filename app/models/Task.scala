@@ -50,6 +50,11 @@ object Task {
       SQL("select * from task").as(task *)
    }
 
+   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user
+  def all_user_fecha(login: String, fecha: Date): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={login} and fecha={fecha}").on('login -> login, 'fecha -> fecha).as(task *)
+   }
+
   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user
   def all_user(login: String): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario={login}").on('login -> login).as(task *)
