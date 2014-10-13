@@ -46,20 +46,19 @@ object Application extends Controller {
       Ok(json)  
     }
     else{
-      NotFound
+      NotFound("El usuario no existe")
     }
    }
 
 
   //recibe todas las tareas del user en una fecha y las muestra en el formato json 
   def consultaTaskUserFecha(login: String, fecha : String) = Action {
-    Task.formatoFecha(fecha)
     if(Task.existeUser(login)!=0 && Task.formatoFecha(fecha)==true){
       val json = Json.toJson(Task.all_user(login))
        Ok(json)  
     }
     else{
-      NotFound
+      NotFound("El usuario no existe o la fecha esta mal construida (YYYY-MM-DD)")
     }
    }
 
@@ -93,7 +92,7 @@ object Application extends Controller {
       Redirect(routes.Application.tasks)
     }
     else{
-      NotFound
+      NotFound("La tarea que intentas eliminar no existe")
     }
       
    }
