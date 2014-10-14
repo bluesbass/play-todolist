@@ -23,6 +23,9 @@ object Application extends Controller {
       "label" -> nonEmptyText
    ) 
 
+  //Controlar que si el id no existe devuelva 404
+  //Si no hay tareas en la fecha devuelva 404
+
   //Se ha puesto que al acceder a index se cargue el form de la practica anterior para poder seguir utilizandolo
   def index = Action {
     Ok(views.html.index(Task.all, taskForm))
@@ -51,16 +54,29 @@ object Application extends Controller {
     }
    }
 
+  //recibe todas las tareas del user a partir de una fecha y las muestra en el formato json ordenadas de forma decreciente
+  def consultaTaskUserFechaOrden(login: String, fecha : String) = Action {
+    if(Task.existeUser(login)!=0 && Task.formatoFecha(fecha)==true){
+      val formato = new SimpleDateFormat("dd-MM-yyyy")
+      val fechaAux = formato.parse(fecha)
+      val json = Json.toJson(Task.all_user_fecha_orden(login,fechaAux))
+       Ok(json)  
+    }
+    else{
+      NotFound("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+    }
+   }
+
   //recibe todas las tareas del user en una fecha y las muestra en el formato json 
   def consultaTaskUserFecha(login: String, fecha : String) = Action {
     if(Task.existeUser(login)!=0 && Task.formatoFecha(fecha)==true){
-      val formato = new SimpleDateFormat("YYYY-MM-DD")
-    val fechaAux = formato.parse(fecha)
+      val formato = new SimpleDateFormat("dd-MM-yyyy")
+      val fechaAux = formato.parse(fecha)
       val json = Json.toJson(Task.all_user_fecha(login,fechaAux))
        Ok(json)  
     }
     else{
-      NotFound("El usuario no existe o la fecha esta mal construida (YYYY-MM-DD)")
+      NotFound("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
     }
    }
 

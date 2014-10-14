@@ -22,7 +22,7 @@ object Task {
     val campos  = fecha.split("-")
     if(campos.length == 3)
     {
-      if(campos(0).length!=4 || campos(1).length!=2 || campos(2).length!=2)
+      if(campos(0).length!=2 || campos(1).length!=2 || campos(2).length!=4)
         return false;
       else
         return true;
@@ -50,7 +50,12 @@ object Task {
       SQL("select * from task").as(task *)
    }
 
-   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user
+   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user a partir de una fecha
+  def all_user_fecha_orden(login: String, fecha: Date): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={login} and fecha>={fecha} order by fecha ASC").on('login -> login, 'fecha -> fecha).as(task *)
+   }
+
+   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user en una fecha
   def all_user_fecha(login: String, fecha: Date): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario={login} and fecha={fecha}").on('login -> login, 'fecha -> fecha).as(task *)
    }
