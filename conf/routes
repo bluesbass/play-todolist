@@ -15,6 +15,7 @@ GET     /tasks/:id/delete           controllers.Application.deleteTask(id: Long)
 DELETE  /tasks/:id                  controllers.Application.deleteTask(id: Long)
 GET     /:login/tasks/:fecha        controllers.Application.consultaTaskUserFecha(login: String, fecha: String)
 GET     /:login/tasks/:fecha/orden  controllers.Application.consultaTaskUserFechaOrden(login: String, fecha: String)
+POST     /:login/tasks/:fecha       controllers.Application.newTaskUserFecha(login: String, fecha: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

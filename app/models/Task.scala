@@ -18,6 +18,19 @@ object Task {
       }
    }
 
+   def formatoFechaPost(fecha: String) : Boolean = { 
+    val campos  = fecha.split("-")
+    if(campos.length == 3)
+    {
+      if(campos(0).length!=4 || campos(1).length!=2 || campos(2).length!=2)
+        return false;
+      else
+        return true;
+    }
+    else
+      return false
+  }
+
   def formatoFecha(fecha: String) : Boolean = { 
     val campos  = fecha.split("-")
     if(campos.length == 3)
@@ -69,6 +82,15 @@ object Task {
   def all_magic : List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario='Magic'").as(task *)
    }
+
+   //Funcion para crear una tarea al usuario por defecto Magic
+  def create_user_fecha(label: String,login: String,fecha: String) {
+   DB.withConnection { implicit c =>
+    SQL("insert into task (label,usuario,fecha) values ({label},{login},{fecha})").on(
+      'label -> label,'login -> login,'fecha -> fecha
+    ).executeUpdate()
+    }
+   }  
 
    //Funcion para crear una tarea al usuario por defecto Magic
   def create_user(label: String,login: String) {

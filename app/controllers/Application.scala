@@ -24,7 +24,6 @@ object Application extends Controller {
    ) 
 
   //Controlar que si el id no existe devuelva 404
-  //Si no hay tareas en la fecha devuelva 404
 
   //Se ha puesto que al acceder a index se cargue el form de la practica anterior para poder seguir utilizandolo
   def index = Action {
@@ -81,6 +80,24 @@ object Application extends Controller {
    }
 
    //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
+  def newTaskUserFecha(login: String,fecha: String) = Action { implicit request =>
+    taskForm.bindFromRequest.fold(
+      errors => BadRequest(views.html.index(Task.all_user(login), errors)),
+      label => {
+        if(Task.formatoFechaPost(fecha)==true && Task.existeUser(login)!=0)
+        {
+          Task.create_user_fecha(label,login,fecha)
+          val json = Json.toJson(Task.consultaTarea(Task.consultaId))
+          Created(json)  
+        }
+        else
+          NotFound("El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)")
+        
+        }
+      )
+     }
+
+   //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
   def newTaskUser(login: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
       errors => BadRequest(views.html.index(Task.all_user(login), errors)),
@@ -114,22 +131,6 @@ object Application extends Controller {
     }
       
    }
-
-/*def newTask = Action { implicit request =>
-  taskForm.bindFromRequest.fold(
-    errors => BadRequest(views.html.index(Task.all(), errors)),
-    label => {
-      Task.create(label)
-      Redirect(routes.Application.index)
-      }
-    )
-   }  */
-
-  /*def deleteTask(id: Long) = Action {
-      Task.delete(id)
-      Redirect(routes.Application.index)
-   }*/
-
 
 
 }
