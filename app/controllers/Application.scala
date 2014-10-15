@@ -102,13 +102,17 @@ object Application extends Controller {
     taskForm.bindFromRequest.fold(
       errors => BadRequest(views.html.index(Task.all_user(login), errors)),
       label => {
-        Task.create_user(label,login)
-        val json = Json.toJson(Task.consultaTarea(Task.consultaId))
-        Created(json)
+        if(Task.existeUser(login)!=0)
+        {
+          Task.create_user(label,login)
+          val json = Json.toJson(Task.consultaTarea(Task.consultaId))
+          Created(json)
+        }
+        else
+          NotFound("El usuario no existe")
         }
       )
      }
-     //CONTROLAR NOTFOUND
 
   //Es una modificaci´on del metodo anterior en el que se crea y devuelve un json a partir de lo que devuelve la consulta de una tarea
   def newTask = Action { implicit request =>

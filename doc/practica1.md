@@ -58,7 +58,7 @@ GET  /:login/tasks/:fecha/orden   controllers.Application.consultaTaskUserFechaO
 ```sh
 POST  /:login/tasks/:fecha   controllers.Application.newTaskUserFecha(login: String, fecha: String)
 ```
-- **`newTasUser(login: String) = Action`** => Función que se utiliza para crear una nueva tarea para un usuario. En su cuerpo se invoca a la función `create_user(label, login)` que creará en la BDD el nuevo registro y a continuación se devuelve un json con la información obtenida de la función `consultaTarea(id)` en la que se le pasa como parámetro el id de la tarea recién creada obtenido de la función `consultaId` y se envía un codigo 201 created.
+- **`newTasUser(login: String) = Action`** => Función que se utiliza para crear una nueva tarea para un usuario. En su cuerpo se invoca a la función `create_user(label, login)` que creará en la BDD el nuevo registro y a continuación se devuelve un json con la información obtenida de la función `consultaTarea(id)` en la que se le pasa como parámetro el id de la tarea recién creada obtenido de la función `consultaId` y se envía un código 201 created. En caso de que el usuario no existiera se devolvería el código de error 404 con el mensaje "El usuario no existe".
 ```sh
 POST  /:login/tasks   controllers.Application.newTaskUser(login: String)
 ```
