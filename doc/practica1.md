@@ -34,7 +34,7 @@ La lista de funciones se ha dividido en 2 apartados, las funciones implementadas
 ```sh 
 GET  /   controllers.Application.index
 ```
-- **`consultaTask(id: Long) = Action`** => Esta funcion se encarga de mostrar la tarea pasada por parámetro en formato json. En caso de que no existiera el id de tarea devolvería un conjunto vacío. En su cuerpo se realiza la invocación de la función de la capa de modelo `consultaTarea(id)` anteriormente descrita. Se envia un código http 200 oK.
+- **`consultaTask(id: Long) = Action`** => Esta funcion se encarga de mostrar la tarea pasada por parámetro en formato json. En caso de que no existiera el id de tarea devolvería un código 404 con el mensaje "No existe una tarea con ese id". En su cuerpo se realiza la invocación de la función de la capa de modelo `consultaTarea(id)` anteriormente descrita. Se envia un código http 200 oK.
 ```sh 
 GET  /tasks/:id   controllers.Application.consultaTask(id: Long)
 ```
