@@ -90,7 +90,9 @@ object Application extends Controller {
       label => {
         if(Task.formatoFechaPost(fecha)==true && Task.existeUser(login)!=0)
         {
-          Task.create_user_fecha(label,login,fecha)
+          val formato = new SimpleDateFormat("yyyy-MM-dd")
+          val fechaAux = formato.parse(fecha)
+          Task.create_user_fecha(label,login,fechaAux)
           val json = Json.toJson(Task.consultaTarea(Task.consultaId))
           Created(json)  
         }

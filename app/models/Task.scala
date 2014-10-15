@@ -84,7 +84,7 @@ object Task {
    }
 
    //Funcion para crear una tarea al usuario por defecto Magic
-  def create_user_fecha(label: String,login: String,fecha: String) {
+  def create_user_fecha(label: String,login: String,fecha: Date) {
    DB.withConnection { implicit c =>
     SQL("insert into task (label,usuario,fecha) values ({label},{login},{fecha})").on(
       'label -> label,'login -> login,'fecha -> fecha
