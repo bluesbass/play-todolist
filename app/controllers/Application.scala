@@ -32,8 +32,12 @@ object Application extends Controller {
 
   //Funcion que obtiene la consulta de la tarea por id y muestra el json
   def consultaTask(id: Long) = Action {
-    val json = Json.toJson(Task.consultaTarea(id))
-    Ok(json)
+    if(Task.consultaTarea(id) != Nil){
+      val json = Json.toJson(Task.consultaTarea(id))
+      Ok(json)
+    }
+    else
+      NotFound("No existe una tarea con ese id")
    } 
 
    //recibe todas las tareas y las muestra en el formato json 
@@ -86,7 +90,9 @@ object Application extends Controller {
       label => {
         if(Task.formatoFechaPost(fecha)==true && Task.existeUser(login)!=0)
         {
-          Task.create_user_fecha(label,login,fecha)
+          val formato = new SimpleDateFormat("yyyy-MM-dd")
+          val fechaAux = formato.parse(fecha)
+          Task.create_user_fecha(label,login,fechaAux)
           val json = Json.toJson(Task.consultaTarea(Task.consultaId))
           Created(json)  
         }
