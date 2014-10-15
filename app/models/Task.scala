@@ -1,5 +1,7 @@
 package models
 
+import java.util.{Date}
+
 import anorm._
 import anorm.SqlParser._
 import play.api.db._
@@ -15,6 +17,33 @@ object Task {
          case id~label => Task(id, label)
       }
    }
+
+   def formatoFechaPost(fecha: String) : Boolean = { 
+    val campos  = fecha.split("-")
+    if(campos.length == 3)
+    {
+      if(campos(0).length!=4 || campos(1).length!=2 || campos(2).length!=2)
+        return false;
+      else
+        return true;
+    }
+    else
+      return false
+  }
+
+  def formatoFecha(fecha: String) : Boolean = { 
+    val campos  = fecha.split("-")
+    if(campos.length == 3)
+    {
+      if(campos(0).length!=2 || campos(1).length!=2 || campos(2).length!=4)
+        return false;
+      else
+        return true;
+    }
+    else
+      return false
+  }
+  
 
   def existeUser(login: String) : Long = DB.withConnection { implicit c =>
     SQL("select count(*) from task_user where usuario={login}").on('login -> login).as(scalar[Long].single)
@@ -34,6 +63,16 @@ object Task {
       SQL("select * from task").as(task *)
    }
 
+   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user a partir de una fecha
+  def all_user_fecha_orden(login: String, fecha: Date): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={login} and fecha>={fecha} order by fecha ASC").on('login -> login, 'fecha -> fecha).as(task *)
+   }
+
+   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user en una fecha
+  def all_user_fecha(login: String, fecha: Date): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={login} and fecha={fecha}").on('login -> login, 'fecha -> fecha).as(task *)
+   }
+
   //Funcion para consultar todas las tareas añadidas en la Base de Datos por un user
   def all_user(login: String): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario={login}").on('login -> login).as(task *)
@@ -43,6 +82,15 @@ object Task {
   def all_magic : List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario='Magic'").as(task *)
    }
+
+   //Funcion para crear una tarea al usuario por defecto Magic
+  def create_user_fecha(label: String,login: String,fecha: String) {
+   DB.withConnection { implicit c =>
+    SQL("insert into task (label,usuario,fecha) values ({label},{login},{fecha})").on(
+      'label -> label,'login -> login,'fecha -> fecha
+    ).executeUpdate()
+    }
+   }  
 
    //Funcion para crear una tarea al usuario por defecto Magic
   def create_user(label: String,login: String) {
