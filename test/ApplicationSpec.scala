@@ -15,7 +15,13 @@ class ApplicationSpec extends Specification {
 
   "Application" should {
 
-    "send 404 on a bad request" in new WithApplication{
+    /* TESTS FEATURE 1 */    
+
+    /*"404 si la tarea no existe" in new WithApplication{
+
+    }*/
+
+    /*"send 404 on a bad request" in new WithApplication{
       route(FakeRequest(GET, "/boum")) must beNone
     }
 
@@ -25,6 +31,6 @@ class ApplicationSpec extends Specification {
       status(home) must equalTo(OK)
       contentType(home) must beSome.which(_ == "text/html")
       contentAsString(home) must contain ("Your new application is ready.")
-    }
+    }*/
   }
 }
