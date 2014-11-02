@@ -51,7 +51,19 @@ class ModelSpec extends Specification {
 
                 tareas.length must equalTo(Task.consultaId+1)
             }
-        }    
+        }  
+
+        "Borrar una tarea inexistente - Feature 1" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create("Test")
+                val tareas = Task.all
+                /* Borro la ultima tarea */
+                Task.delete(Task.consultaId+1)
+
+                tareas.length must equalTo(Task.consultaId)
+            }
+        }   
 
     }  
 }
