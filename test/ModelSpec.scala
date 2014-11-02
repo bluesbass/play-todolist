@@ -22,5 +22,15 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Consultar tarea insexistente - Feature 1" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val tarea = Task.consultaTarea(Task.consultaId+1)
+                tarea must equalTo(Nil)
+            }
+        }
+
+           
+
     }  
 }
