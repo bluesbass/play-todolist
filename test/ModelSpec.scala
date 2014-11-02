@@ -34,13 +34,24 @@ class ModelSpec extends Specification {
         "Consultar total de tareas - Feature 1" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
+                Task.create("Test")
                 val tareas = Task.all
                 tareas.length must equalTo(Task.consultaId)
             }
         }
 
         
-           
+        "Borrar una tarea existente - Feature 1" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create("Test")
+                val tareas = Task.all
+                /* Borro la ultima tarea */
+                Task.delete(Task.consultaId)
+
+                tareas.length must equalTo(Task.consultaId+1)
+            }
+        }    
 
     }  
 }
