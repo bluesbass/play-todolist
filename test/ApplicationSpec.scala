@@ -28,6 +28,18 @@ class ApplicationSpec extends Specification {
       }      
     }
 
+    "Consultar tarea inexistente - Feature 1" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        
+        val id = Task.consultaId+1
+        val result = Application.consultaTask(id)(FakeRequest())
+        
+        contentAsString(result) must contain("No existe una tarea con ese id")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
 
   }
 }
