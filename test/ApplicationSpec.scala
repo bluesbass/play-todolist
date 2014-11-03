@@ -23,9 +23,11 @@ class ApplicationSpec extends Specification {
         val result = Application.consultaTask(id)(FakeRequest())
         
         contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        status(result) must equalTo(OK)
         
       }      
     }
+
 
   }
 }
