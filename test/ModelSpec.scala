@@ -67,5 +67,18 @@ class ModelSpec extends Specification {
             }
         }   
 
+
+        /* TESTS FEATURE 2 */ 
+
+        "Crear y Consultar tarea con usuario- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Jesus")
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test")  
+            }
+        }
+
     }  
 }
