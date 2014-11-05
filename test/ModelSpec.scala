@@ -91,16 +91,16 @@ class ModelSpec extends Specification {
             }
         }
 
-/*        "Consultar total de tareas de un usuario distinto al Anonimo- Feature 2" in {  
+        "Consultar total de tareas de un usuario distinto al Anonimo- Feature 2" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
-                Task.create_user("Test","Magic")
-                val tareas = Task.all_magic
-                Task.create_user("Test2","Magic")
-                val tareas2 = Task.all_magic
-                tareas.length must equalTo(tareas2.length-1)
+                Task.create_user("Test","Jesus")
+                val tareas = Task.tareasUser("Jesus")
+                Task.create_user("Test2","Jesus")
+                val tareas2 = Task.tareasUser("Jesus")
+                tareas must equalTo(tareas2-1)
             }
-        }*/
+        }
 
     }  
 }
