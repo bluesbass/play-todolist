@@ -24,7 +24,7 @@ class ModelSpec extends Specification {
 
         "Consultar tarea insexistente - Feature 1" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-
+                Task.create("Test")
                 val tarea = Task.consultaTarea(Task.consultaId+1)
                 tarea must equalTo(Nil)
             }
@@ -45,8 +45,9 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
                 Task.create("Test")
+                Task.create("Test2")
                 val tareas = Task.all
-                /* Borro la ultima tarea */
+                /* Borro la ultima tarea */                
                 Task.delete(Task.consultaId)
 
                 tareas.length must equalTo(Task.consultaId+1)
@@ -58,10 +59,11 @@ class ModelSpec extends Specification {
 
                 Task.create("Test")
                 val tareas = Task.all
-                /* Borro la ultima tarea */
-                Task.delete(Task.consultaId+1)
+                val count = Task.consultaId
+                /* Intento borrar una tarea que no existe */                
+                Task.delete(count+1)
 
-                tareas.length must equalTo(Task.consultaId)
+                tareas.length must equalTo(count)
             }
         }   
 
