@@ -80,6 +80,15 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Crear tarea a un usuario inexistente- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val result = Task.existeUser("Azimuth")
+
+                result must equalTo(0)
+            }
+        }
+
         "Consultar total de tareas del usuario Anonimo 'Magic'- Feature 2" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
@@ -95,10 +104,10 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
                 Task.create_user("Test","Jesus")
-                val tareas = Task.tareasUser("Jesus")
+                val tareas = Task.all_user("Jesus")
                 Task.create_user("Test2","Jesus")
-                val tareas2 = Task.tareasUser("Jesus")
-                tareas must equalTo(tareas2-1)
+                val tareas2 = Task.all_user("Jesus")
+                tareas.length must equalTo(tareas2.length-1)
             }
         }
 
