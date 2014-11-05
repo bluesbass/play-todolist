@@ -74,7 +74,7 @@ class ApplicationSpec extends Specification {
       }      
     }
 
-    /*"Eliminar tarea existente - Feature 1" in {
+    "Eliminar tarea existente - Feature 1" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         Task.create("Test")
@@ -82,11 +82,11 @@ class ApplicationSpec extends Specification {
         
         val result = Application.deleteTask(id)(FakeRequest(DELETE, "/tasks/"+id))
 
-        contentAsString(result) must contain("La tarea que intentas eliminar no existe")
-        status(result) must equalTo(NOT_FOUND)
+        contentAsString(result) must contain("Tarea eliminada correctamente")
+        status(result) must equalTo(OK)
         
       }      
-    }*/
+    }
 
     "Comprobar que devuelve 404 en una peticion erronea - Feature 1" in {  
       running(FakeApplication()) {  

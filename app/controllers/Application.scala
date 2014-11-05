@@ -135,7 +135,8 @@ object Application extends Controller {
   def deleteTask(id: Long) = Action {
     if(Task.consultaTarea(id) != Nil){
       Task.delete(id)
-      Redirect(routes.Application.tasks)
+      Ok("Tarea eliminada correctamente")
+      //Redirect(routes.Application.tasks)
     }
     else{
       NotFound("La tarea que intentas eliminar no existe")
