@@ -60,20 +60,19 @@ class ApplicationSpec extends Specification {
       }      
     }
 
-   /* "Eliminar tarea inexistente" in {
+   "Eliminar tarea inexistente" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-
+        
+        Task.create("Test")
         val id = Task.consultaId+1
         
-        val result = Application.newTask(  
-          FakeRequest(DELETE, "/tasks").withFormUrlEncodedBody(("label","Test"))  
-          )
+        val result = Application.deleteTask(id)(FakeRequest(DELETE, "/tasks/"+id))
 
-        contentAsString(tarea) must contain("La tarea que intentas eliminar no existe")
-        status(tarea) must equalTo(NOT_FOUND)
+        contentAsString(result) must contain("La tarea que intentas eliminar no existe")
+        status(result) must equalTo(NOT_FOUND)
         
       }      
-    }*/
+    }
 
     "Comprobar que devuelve 404 en una peticion erronea - Feature 1" in {  
       running(FakeApplication()) {  
