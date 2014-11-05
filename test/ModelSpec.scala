@@ -80,5 +80,27 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Consultar total de tareas del usuario Anonimo 'Magic'- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Magic")
+                val tareas = Task.all_magic
+                Task.create_user("Test2","Magic")
+                val tareas2 = Task.all_magic
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }
+
+/*        "Consultar total de tareas de un usuario distinto al Anonimo- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Magic")
+                val tareas = Task.all_magic
+                Task.create_user("Test2","Magic")
+                val tareas2 = Task.all_magic
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }*/
+
     }  
 }

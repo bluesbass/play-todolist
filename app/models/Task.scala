@@ -44,6 +44,10 @@ object Task {
       return false
   }
   
+  //Funcion para contar el numero de tareas que tiene un usuario
+  def tareasUser( login: String ) : Long = DB.withConnection { implicit c =>
+    SQL("select count(*) from task where usuario={login}").on('login -> login).as(scalar[Long].single)
+  }
 
   def existeUser(login: String) : Long = DB.withConnection { implicit c =>
     SQL("select count(*) from task_user where usuario={login}").on('login -> login).as(scalar[Long].single)
