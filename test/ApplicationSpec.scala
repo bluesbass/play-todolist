@@ -60,7 +60,7 @@ class ApplicationSpec extends Specification {
       }      
     }
 
-   "Eliminar tarea inexistente" in {
+   "Eliminar tarea inexistente - Feature 1" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         Task.create("Test")
@@ -73,6 +73,20 @@ class ApplicationSpec extends Specification {
         
       }      
     }
+
+    /*"Eliminar tarea existente - Feature 1" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.create("Test")
+        val id = Task.consultaId
+        
+        val result = Application.deleteTask(id)(FakeRequest(DELETE, "/tasks/"+id))
+
+        contentAsString(result) must contain("La tarea que intentas eliminar no existe")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }*/
 
     "Comprobar que devuelve 404 en una peticion erronea - Feature 1" in {  
       running(FakeApplication()) {  
@@ -89,6 +103,17 @@ class ApplicationSpec extends Specification {
         contentType(home) must beSome.which(_ == "text/html")  
         
         status(home) must equalTo(OK)  
+        
+      }
+    }
+
+    "Comprobar funcionamiento de la funcion que devuelve todas las tareas (Ya modificada con el usuario anonimo 'Magic') - Feature 1" in {  
+      running(FakeApplication()) {
+
+        val result = Application.tasks(FakeRequest())
+        val Some(home) = route(FakeRequest(GET, "/tasks"))
+        status(result) must equalTo(OK)
+        status(home) must equalTo(OK)
         
       }
     }
