@@ -52,9 +52,9 @@ class ApplicationSpec extends Specification {
           )
 
         val id = Task.consultaId
-        val tarea = Application.consultaTask(id)(FakeRequest())
+        //val tarea = Application.consultaTask(id)(FakeRequest())
         
-        contentAsString(tarea) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
         status(result) must equalTo(CREATED)
         
       }      
@@ -116,6 +116,25 @@ class ApplicationSpec extends Specification {
         status(home) must equalTo(OK)
         
       }
+    }
+
+    /* TESTS FEATURE 2 */  
+
+    "Crear tarea con usuario correcto y Consultar que se ha creado- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Jesus"
+        val result = Application.newTaskUser(login)(  
+          FakeRequest(POST, "/"+login+"/tasks").withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        //val tarea = Application.consultaTask(id)(FakeRequest())
+        
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        status(result) must equalTo(CREATED)
+        
+      }      
     }
 
   }
