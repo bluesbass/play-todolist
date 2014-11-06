@@ -137,5 +137,19 @@ class ApplicationSpec extends Specification {
       }      
     }
 
+    "Crear tarea con usuario inexistente- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val result = Application.newTaskUser(login)(  
+          FakeRequest(POST, "/"+login+"/tasks").withFormUrlEncodedBody(("label","Test"))  
+          )
+        
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
+
   }
 }
