@@ -366,5 +366,31 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }      
     }
 
+    "Consultar tareas de un usuario inexistente ordenadas por fecha - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val fechaget = "07-11-2014"
+        
+        val result = Application.consultaTaskUserFechaOrden(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente ordenadas por fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Jesus"
+        val fechaget = "2014-11-07"
+        
+        val result = Application.consultaTaskUserFechaOrden(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
   }
 }
