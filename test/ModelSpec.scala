@@ -32,7 +32,6 @@ class ModelSpec extends Specification {
             }
         }
 
-        /* Esta funcion depende de el contenido de la BDD */
         "Consultar total de tareas - Feature 1" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
