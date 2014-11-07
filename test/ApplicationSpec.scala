@@ -251,7 +251,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         val fecha = "20145-11-07"
-        val login = "Pascualinex"
+        val login = "Jesus"
         val result = Application.newTaskUserFecha(login,fecha)(  
           FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
           )
@@ -261,6 +261,29 @@ class ApplicationSpec extends Specification with JsonMatchers{
         contentAsString(result) must equalTo("El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)")
         status(result) must equalTo(NOT_FOUND)
         
+      }      
+    }
+
+    "Consultar tareas de un usuario existente en una fecha y comprueba que tiene la ultima que se ha creado - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val fechaget = "07-11-2014"
+        val tareas = Application.consultaTaskUserFecha("Jesus",fechaget)(FakeRequest())
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
       }      
     }
 
