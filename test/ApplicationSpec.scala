@@ -190,5 +190,23 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }      
     }
 
+    "Consultar tareas de un usuario inexistente - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val result = Application.consultaTaskUser("Pascualinex")(FakeRequest())
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario inexistente desde GET- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val Some(result) = route(FakeRequest(GET, "/Pascualinex/tasks"))
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
   }
 }
