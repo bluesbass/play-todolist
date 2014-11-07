@@ -3,6 +3,8 @@ package test
 import org.specs2.mutable._  
 import play.api.test._  
 import play.api.test.Helpers._
+import java.util.{Date}
+import java.text._
 
 import models.Task
 
@@ -155,6 +157,17 @@ class ModelSpec extends Specification {
                 Task.formatoFechaPost("2014-111-07") must equalTo(false)
                 Task.formatoFechaPost("2014-11-7") must equalTo(false)
                 Task.formatoFechaPost("2014-11-077") must equalTo(false)
+            }
+        }
+
+        "Crear y Consultar tarea con usuario y fecha- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                Task.create_user_fecha("Test","Jesus",fecha)
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test")  
             }
         }
 
