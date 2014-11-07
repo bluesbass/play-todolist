@@ -122,14 +122,14 @@ class ModelSpec extends Specification {
 
         /* TESTS FEATURE 3 */ 
 
-        "Consultar formato de fecha correcto para get (dd-mm-yyyy) - Feature 3" in {
+        "Consultar formato de fecha correcto para GET (dd-mm-yyyy) - Feature 3" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 val result = Task.formatoFecha("07-11-2014")
                 result must equalTo(true)
             }
         }
 
-        "Consultar formato de fecha incorrecto para get - Feature 3" in {
+        "Consultar formato de fecha incorrecto para GET - Feature 3" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 Task.formatoFecha("7-11-2014") must equalTo(false)
                 Task.formatoFecha("077-11-2014") must equalTo(false)
@@ -137,6 +137,24 @@ class ModelSpec extends Specification {
                 Task.formatoFecha("07-111-2014") must equalTo(false)
                 Task.formatoFecha("07-11-14") must equalTo(false)
                 Task.formatoFecha("07-11-20145") must equalTo(false)
+            }
+        }
+
+        "Consultar formato de fecha correcto para POST (dd-mm-yyyy) - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val result = Task.formatoFechaPost("2014-11-07")
+                result must equalTo(true)
+            }
+        }
+
+        "Consultar formato de fecha incorrecto para POST - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                Task.formatoFechaPost("14-11-07") must equalTo(false)
+                Task.formatoFechaPost("20145-11-07") must equalTo(false)
+                Task.formatoFechaPost("2014-1-07") must equalTo(false)
+                Task.formatoFechaPost("2014-111-07") must equalTo(false)
+                Task.formatoFechaPost("2014-11-7") must equalTo(false)
+                Task.formatoFechaPost("2014-11-077") must equalTo(false)
             }
         }
 
