@@ -246,5 +246,23 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }      
     }
 
+
+    "Crear tarea con usuario existente y fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "20145-11-07"
+        val login = "Pascualinex"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        
+        contentAsString(result) must equalTo("El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
+
   }
 }
