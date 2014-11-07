@@ -154,12 +154,28 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }      
     }
 
-    "Consultar tareas de un usuario existente - Feature 2" in {
+    "Consultar tareas de un usuario existente y comprueba que tiene la ultima que se ha creado - Feature 2" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         Task.create_user("Test","Jesus")
         val tareas = Application.consultaTaskUser("Jesus")(FakeRequest())
-        //val Some(tasks) = route(FakeRequest(GET, "/Jesus/tasks"))
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente y comprueba que tiene la ultima que se ha creado (Desde GET)- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.create_user("Test","Jesus")        
+        val Some(tareas) = route(FakeRequest(GET, "/Jesus/tasks"))
         val id = Task.consultaId // Obtenemos el ultimo id
 
 
