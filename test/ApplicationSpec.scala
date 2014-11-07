@@ -295,7 +295,20 @@ class ApplicationSpec extends Specification with JsonMatchers{
         
         val result = Application.consultaTaskUserFecha(login,fechaget)(FakeRequest())
 
-        contentAsString(result) must equalTo("El usuario no existe o el formato de la fecha es incorrecto (dd-MM-yyyy)")
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente en una fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val fechaget = "2014-11-07"
+        
+        val result = Application.consultaTaskUserFecha(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
         status(result) must equalTo(NOT_FOUND)
       }      
     }
