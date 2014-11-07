@@ -171,5 +171,37 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Consultar total de tareas de un usuario existente con una fecha registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas = Task.all_user_fecha("Magic",fecha)
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas2 = Task.all_user_fecha("Magic",fecha)
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }
+
+        "Consultar total de tareas de un usuario inexistente con una fecha registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                val tareas = Task.all_user_fecha("Azimuth",fecha)
+                tareas must equalTo(Nil)
+            }
+        }        
+
+        "Consultar total de tareas de un usuario existente con una fecha no registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                val fecha2 = formato.parse("08-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas = Task.all_user_fecha("Magic",fecha2)
+                tareas must equalTo(Nil)
+            }
+        }        
+
     }  
 }
