@@ -1,6 +1,9 @@
 import org.specs2.mutable._
 import org.specs2.runner._
+import org.specs2.matcher._
+
 import org.junit.runner._
+import play.api.libs.json.{Json, JsValue}
 
 import play.api.test._
 import play.api.test.Helpers._
@@ -12,7 +15,7 @@ import controllers.Application
 
 
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends Specification with JsonMatchers{
 
   "Application" should {
 
@@ -120,7 +123,7 @@ class ApplicationSpec extends Specification {
 
     /* TESTS FEATURE 2 */  
 
-    "Crear tarea con usuario correcto y Consultar que se ha creado- Feature 2" in {
+    "Crear tarea con usuario correcto y Consultar que se ha creado - Feature 2" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         val login = "Jesus"
@@ -137,7 +140,7 @@ class ApplicationSpec extends Specification {
       }      
     }
 
-    "Crear tarea con usuario inexistente- Feature 2" in {
+    "Crear tarea con usuario inexistente - Feature 2" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
         
         val login = "Pascualinex"
@@ -148,6 +151,26 @@ class ApplicationSpec extends Specification {
         contentAsString(result) must equalTo("El usuario no existe")
         status(result) must equalTo(NOT_FOUND)
         
+      }      
+    }
+
+    "Consultar tareas de un usuario existente - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.create_user("Test","Jesus")
+        val tareas = Application.consultaTaskUser("Jesus")(FakeRequest())
+        //val Some(tasks) = route(FakeRequest(GET, "/Jesus/tasks"))
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+        //status(tasks) must equalTo(OK)
       }      
     }
 
