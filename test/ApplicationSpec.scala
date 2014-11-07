@@ -7,6 +7,8 @@ import play.api.libs.json.{Json, JsValue}
 
 import play.api.test._
 import play.api.test.Helpers._
+import java.util.{Date}
+import java.text._
 
 import play.api.libs.json._
 
@@ -207,6 +209,26 @@ class ApplicationSpec extends Specification with JsonMatchers{
         status(result) must equalTo(NOT_FOUND)
       }      
     }
+
+    /* TESTS FEATURE 3 */  
+
+    "Crear tarea con usuario y fecha correctos y Consultar que se ha creado - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        status(result) must equalTo(CREATED)
+        
+      }      
+    }
+
 
   }
 }
