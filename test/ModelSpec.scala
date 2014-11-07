@@ -67,5 +67,58 @@ class ModelSpec extends Specification {
             }
         }   
 
+
+        /* TESTS FEATURE 2 */ 
+
+        "Crear y Consultar tarea con usuario- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Jesus")
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test")  
+            }
+        }
+
+        "Comprobar si el usuario existe- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val result = Task.existeUser("Azimuth")
+                //Esto se comprueba en el aplication
+                result must equalTo(0)
+            }
+        }
+
+        "Consultar total de tareas del usuario Anonimo 'Magic'- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Magic")
+                val tareas = Task.all_magic
+                Task.create_user("Test2","Magic")
+                val tareas2 = Task.all_magic
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }
+
+        "Consultar total de tareas de un usuario distinto al Anonimo- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create_user("Test","Jesus")
+                val tareas = Task.all_user("Jesus")
+                Task.create_user("Test2","Jesus")
+                val tareas2 = Task.all_user("Jesus")
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }
+
+        "Consultar total de tareas de un usuario inexistente- Feature 2" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val tareas = Task.all_user("Azimuth")
+                tareas must equalTo(Nil)
+                
+            }
+        }
+
     }  
 }

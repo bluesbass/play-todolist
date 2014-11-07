@@ -1,6 +1,9 @@
 import org.specs2.mutable._
 import org.specs2.runner._
+import org.specs2.matcher._
+
 import org.junit.runner._
+import play.api.libs.json.{Json, JsValue}
 
 import play.api.test._
 import play.api.test.Helpers._
@@ -12,7 +15,7 @@ import controllers.Application
 
 
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends Specification with JsonMatchers{
 
   "Application" should {
 
@@ -52,9 +55,9 @@ class ApplicationSpec extends Specification {
           )
 
         val id = Task.consultaId
-        val tarea = Application.consultaTask(id)(FakeRequest())
+        //val tarea = Application.consultaTask(id)(FakeRequest())
         
-        contentAsString(tarea) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
         status(result) must equalTo(CREATED)
         
       }      
@@ -116,6 +119,93 @@ class ApplicationSpec extends Specification {
         status(home) must equalTo(OK)
         
       }
+    }
+
+    /* TESTS FEATURE 2 */  
+
+    "Crear tarea con usuario correcto y Consultar que se ha creado - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Jesus"
+        val result = Application.newTaskUser(login)(  
+          FakeRequest(POST, "/"+login+"/tasks").withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        //val tarea = Application.consultaTask(id)(FakeRequest())
+        
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        status(result) must equalTo(CREATED)
+        
+      }      
+    }
+
+    "Crear tarea con usuario inexistente - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val result = Application.newTaskUser(login)(  
+          FakeRequest(POST, "/"+login+"/tasks").withFormUrlEncodedBody(("label","Test"))  
+          )
+        
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
+
+    "Consultar tareas de un usuario existente y comprueba que tiene la ultima que se ha creado - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.create_user("Test","Jesus")
+        val tareas = Application.consultaTaskUser("Jesus")(FakeRequest())
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente y comprueba que tiene la ultima que se ha creado (Desde GET)- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.create_user("Test","Jesus")        
+        val Some(tareas) = route(FakeRequest(GET, "/Jesus/tasks"))
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+        //status(tasks) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario inexistente - Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val result = Application.consultaTaskUser("Pascualinex")(FakeRequest())
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario inexistente desde GET- Feature 2" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val Some(result) = route(FakeRequest(GET, "/Pascualinex/tasks"))
+        contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+      }      
     }
 
   }
