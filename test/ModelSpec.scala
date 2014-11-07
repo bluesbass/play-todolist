@@ -3,6 +3,8 @@ package test
 import org.specs2.mutable._  
 import play.api.test._  
 import play.api.test.Helpers._
+import java.util.{Date}
+import java.text._
 
 import models.Task
 
@@ -30,7 +32,6 @@ class ModelSpec extends Specification {
             }
         }
 
-        /* Esta funcion depende de el contenido de la BDD */
         "Consultar total de tareas - Feature 1" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
@@ -119,6 +120,112 @@ class ModelSpec extends Specification {
                 
             }
         }
+
+        /* TESTS FEATURE 3 */ 
+
+        "Consultar formato de fecha correcto para GET (dd-mm-yyyy) - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val result = Task.formatoFecha("07-11-2014")
+                result must equalTo(true)
+            }
+        }
+
+        "Consultar formato de fecha incorrecto para GET - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                Task.formatoFecha("7-11-2014") must equalTo(false)
+                Task.formatoFecha("077-11-2014") must equalTo(false)
+                Task.formatoFecha("07-1-2014") must equalTo(false)
+                Task.formatoFecha("07-111-2014") must equalTo(false)
+                Task.formatoFecha("07-11-14") must equalTo(false)
+                Task.formatoFecha("07-11-20145") must equalTo(false)
+            }
+        }
+
+        "Consultar formato de fecha correcto para POST (dd-mm-yyyy) - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val result = Task.formatoFechaPost("2014-11-07")
+                result must equalTo(true)
+            }
+        }
+
+        "Consultar formato de fecha incorrecto para POST - Feature 3" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                Task.formatoFechaPost("14-11-07") must equalTo(false)
+                Task.formatoFechaPost("20145-11-07") must equalTo(false)
+                Task.formatoFechaPost("2014-1-07") must equalTo(false)
+                Task.formatoFechaPost("2014-111-07") must equalTo(false)
+                Task.formatoFechaPost("2014-11-7") must equalTo(false)
+                Task.formatoFechaPost("2014-11-077") must equalTo(false)
+            }
+        }
+
+        "Crear y Consultar tarea con usuario y fecha- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                Task.create_user_fecha("Test","Jesus",fecha)
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test")  
+            }
+        }
+
+        "Consultar total de tareas de un usuario existente con una fecha registrada - Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas = Task.all_user_fecha("Magic",fecha)
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas2 = Task.all_user_fecha("Magic",fecha)
+                tareas.length must equalTo(tareas2.length-1)
+            }
+        }
+
+        "Consultar total de tareas de un usuario existente a partir de una fecha - Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                Task.eliminarTaskUser("Magic")
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("06-11-2014")
+                val fecha1 = formato.parse("07-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                Task.create_user_fecha("Test","Magic",fecha1)
+                val tareas = Task.all_user_fecha_orden("Magic",fecha)                
+                val tareas2 = Task.all_user_fecha_orden("Magic",fecha1)
+                tareas2.length must equalTo(tareas.length-1)
+            }
+        }
+
+        "Consultar total de tareas de un usuario inexistente con una fecha registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                val tareas = Task.all_user_fecha("Azimuth",fecha)
+                tareas must equalTo(Nil)
+            }
+        }        
+
+        "Consultar total de tareas de un usuario existente con una fecha no registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                val fecha2 = formato.parse("08-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas = Task.all_user_fecha("Magic",fecha2)
+                tareas must equalTo(Nil)
+            }
+        } 
+
+        "Consultar total de tareas de un usuario existente con una fecha no registrada- Feature 3" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")
+                val fecha2 = formato.parse("08-11-2014")
+                Task.create_user_fecha("Test","Magic",fecha)
+                val tareas = Task.all_user_fecha("Magic",fecha2)
+                tareas must equalTo(Nil)
+            }
+        }        
 
     }  
 }

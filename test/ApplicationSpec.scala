@@ -7,6 +7,8 @@ import play.api.libs.json.{Json, JsValue}
 
 import play.api.test._
 import play.api.test.Helpers._
+import java.util.{Date}
+import java.text._
 
 import play.api.libs.json._
 
@@ -204,6 +206,188 @@ class ApplicationSpec extends Specification with JsonMatchers{
         
         val Some(result) = route(FakeRequest(GET, "/Pascualinex/tasks"))
         contentAsString(result) must equalTo("El usuario no existe")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    /* TESTS FEATURE 3 */  
+
+    "Crear tarea con usuario y fecha correctos y Consultar que se ha creado - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"}]")
+        status(result) must equalTo(CREATED)
+        
+      }      
+    }
+
+    "Crear tarea con usuario inexistente y fecha correcta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Pascualinex"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        
+        contentAsString(result) must equalTo("El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
+
+
+    "Crear tarea con usuario existente y fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "20145-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+        
+        contentAsString(result) must equalTo("El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+        
+      }      
+    }
+
+    "Consultar tareas de un usuario existente en una fecha y comprueba que tiene la ultima que se ha creado - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val fechaget = "07-11-2014"
+        val tareas = Application.consultaTaskUserFecha(login,fechaget)(FakeRequest())
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente en una fecha y comprueba que tiene la ultima que se ha creado (Desde GET) - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val fecha = "2014-11-07"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val fechaget = "07-11-2014"
+        val Some(tareas) = route(FakeRequest(GET, "/"+login+"/tasks/"+fechaget))
+        val id = Task.consultaId // Obtenemos el ultimo id
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        val resultString = contentAsString(tareas) 
+        resultString must contain("\"id\":"+ id)
+        resultString must contain("\"label\":\"Test\"")
+
+        status(tareas) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario inexistente en una fecha - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val fechaget = "07-11-2014"
+        
+        val result = Application.consultaTaskUserFecha(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente en una fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Jesus"
+        val fechaget = "2014-11-07"
+        
+        val result = Application.consultaTaskUserFecha(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente ordenadas por fecha - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        Task.eliminarTaskUser("Jesus")
+        val fecha = "2014-11-07"
+        val fecha2 = "2014-11-08"
+        val login = "Jesus"
+        val result = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha).withFormUrlEncodedBody(("label","Test"))  
+          )
+
+        val id = Task.consultaId
+
+        val result2 = Application.newTaskUserFecha(login,fecha)(  
+          FakeRequest(POST, "/"+login+"/tasks/"+fecha2).withFormUrlEncodedBody(("label","Test2"))  
+          )
+
+        val id2 = Task.consultaId
+
+        val fechaget = "07-11-2014"
+        val tareas = Application.consultaTaskUserFechaOrden(login,fechaget)(FakeRequest())
+
+        contentType(tareas) must beSome.which(_ == "application/json")
+
+        contentAsString(tareas) must contain("[{\"id\":"+ id + ",\"label\":\"Test\"},{\"id\":"+ id2 + ",\"label\":\"Test2\"}]")
+
+        status(tareas) must equalTo(OK)
+      }      
+    }
+
+    "Consultar tareas de un usuario inexistente ordenadas por fecha - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Pascualinex"
+        val fechaget = "07-11-2014"
+        
+        val result = Application.consultaTaskUserFechaOrden(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
+        status(result) must equalTo(NOT_FOUND)
+      }      
+    }
+
+    "Consultar tareas de un usuario existente ordenadas por fecha incorrecta - Feature 3" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        
+        val login = "Jesus"
+        val fechaget = "2014-11-07"
+        
+        val result = Application.consultaTaskUserFechaOrden(login,fechaget)(FakeRequest())
+
+        contentAsString(result) must equalTo("El usuario no existe o la fecha esta mal construida (dd-MM-yyyy)")
         status(result) must equalTo(NOT_FOUND)
       }      
     }
