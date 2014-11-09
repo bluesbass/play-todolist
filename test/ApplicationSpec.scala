@@ -19,7 +19,7 @@ import controllers.Application
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends Specification with JsonMatchers{
 
-  "Application" should {
+  "Feature 1" should {
 
     /* TESTS FEATURE 1 */    
 
@@ -122,6 +122,9 @@ class ApplicationSpec extends Specification with JsonMatchers{
         
       }
     }
+  }
+
+  "Feature 2" should {
 
     /* TESTS FEATURE 2 */  
 
@@ -209,6 +212,10 @@ class ApplicationSpec extends Specification with JsonMatchers{
         status(result) must equalTo(NOT_FOUND)
       }      
     }
+
+  }
+
+  "Feature 3" should {
 
     /* TESTS FEATURE 3 */  
 
