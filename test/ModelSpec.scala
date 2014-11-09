@@ -10,7 +10,7 @@ import models.Task
 
 class ModelSpec extends Specification {
 
-    "Models" should {
+    "Feature 1" should {
 
         /* TESTS FEATURE 1 */ 
 
@@ -67,7 +67,9 @@ class ModelSpec extends Specification {
                 tareas.length must equalTo(count)
             }
         }   
+    }
 
+    "Feature 2" should {
 
         /* TESTS FEATURE 2 */ 
 
@@ -120,6 +122,9 @@ class ModelSpec extends Specification {
                 
             }
         }
+    }
+
+    "Feature 3" should {
 
         /* TESTS FEATURE 3 */ 
 
