@@ -267,7 +267,23 @@ class ModelSpec extends Specification {
                 val cat = Task.comprueba_categoria_user(usuario,categoria)
                 cat must equalTo(1)
             }
-        } 
+        }
+
+        "Crear una tarea a un usuario con una categoria determinada - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test categoria")
+
+            }
+        }
 
     }
 }

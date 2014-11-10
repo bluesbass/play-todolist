@@ -94,7 +94,7 @@ object Task {
       SQL("select * from task where usuario='Magic'").as(task *)
    }
 
-   //Funcion para crear una tarea al usuario por defecto Magic
+   //Funcion para crear una tarea al usuario login
   def create_user_fecha(label: String,login: String,fecha: Date) {
    DB.withConnection { implicit c =>
     SQL("insert into task (label,usuario,fecha) values ({label},{login},{fecha})").on(
@@ -159,5 +159,14 @@ object Task {
   def comprueba_categoria_user(login: String, categoria: String) : Long = DB.withConnection { implicit c =>
     SQL("select count(*) from user_categ where usuario={login} and categoria={categoria}").on('login -> login,'categoria -> categoria).as(scalar[Long].single)
   }
+
+  //Funcion para crear una tarea con categoria
+  def create_task_categoria(label: String,login: String,fecha: Date, categoria: String) {
+   DB.withConnection { implicit c =>
+    SQL("insert into task (label,usuario,fecha,categoria) values ({label},{login},{fecha},{categoria})").on(
+      'label -> label,'login -> login,'fecha -> fecha,'categoria->categoria
+    ).executeUpdate()
+    }
+   } 
   
 }
