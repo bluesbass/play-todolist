@@ -168,5 +168,14 @@ object Task {
     ).executeUpdate()
     }
    } 
+
+  //Funcion para crear una tarea con categoria
+  def modificar_task(id: Long, label: String, fecha: Date, categoria: String) {
+   DB.withConnection { implicit c =>
+    SQL("update task set label={label},fecha={fecha},categoria={categoria} where id={id}").on(
+      'id -> id,'label -> label,'fecha -> fecha,'categoria->categoria
+    ).executeUpdate()
+    }
+   }
   
 }
