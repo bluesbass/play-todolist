@@ -141,5 +141,23 @@ object Task {
   def comprueba_categoria(categoria: String) : Long = DB.withConnection { implicit c =>
     SQL("select count(*) from categoria where nombre={categoria}").on('categoria -> categoria).as(scalar[Long].single)
   }
+
+   //Funcion para crear una categoria asociada a un usuario
+  def create_categoria_user(login: String, categoria: String) {
+   DB.withConnection { implicit c =>
+
+    create_categoria(categoria)
+
+    SQL("insert into user_categ (usuario, categoria) values ({login}, {categoria})").on(
+               'login -> login,
+               'categoria -> categoria
+            ).executeUpdate()     
+
+    }
+   }
+
+  def comprueba_categoria_user(login: String, categoria: String) : Long = DB.withConnection { implicit c =>
+    SQL("select count(*) from user_categ where usuario={login} and categoria={categoria}").on('login -> login,'categoria -> categoria).as(scalar[Long].single)
+  }
   
 }

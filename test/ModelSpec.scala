@@ -253,7 +253,7 @@ class ModelSpec extends Specification {
                 val categoria = "Software"
                 Task.create_categoria_user(usuario,categoria)
                 val cat = Task.comprueba_categoria_user(usuario,categoria)
-                cat must not equalTo(1)
+                cat must equalTo(1)
             }
         } 
 
