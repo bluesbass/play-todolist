@@ -129,5 +129,17 @@ object Task {
     ).executeUpdate()
     }
    }
+
+   def create_categoria(categoria: String) {
+    DB.withConnection { implicit c =>
+        SQL("insert into categoria (nombre) values({categoria})").on(
+        'categoria -> categoria
+    ).executeUpdate() 
+    }
+  }
+
+  def comprueba_categoria(categoria: String) : Long = DB.withConnection { implicit c =>
+    SQL("select count(*) from categoria where nombre={categoria}").on('categoria -> categoria).as(scalar[Long].single)
+  }
   
 }
