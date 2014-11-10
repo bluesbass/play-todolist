@@ -285,5 +285,30 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Modificar una tarea de un usuario con una categoria determinada - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+
+                val categoria2 = "Hardware"
+                Task.create_categoria_user(usuario,categoria2)
+
+                val id = Task.consultaId                
+                val fecha2 = formato.parse("10-11-2014")                
+                val label2 = "Test categoria modificada"
+
+                Task.modificar_task(id,label2,fecha2,categoria2)
+
+                val tarea = Task.consultaTarea(id)
+                tarea.head.label must equalTo("Test categoria modificada")
+
+            }
+        }
+
     }
 }
