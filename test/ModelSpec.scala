@@ -257,5 +257,17 @@ class ModelSpec extends Specification {
             }
         } 
 
+        "Crear la misma categoria asociada a diferentes usuarios - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val usuario = "Jesus"
+                val usuario2 = "Domingo"
+                val categoria = "Software"
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_categoria_user(usuario2,categoria)
+                val cat = Task.comprueba_categoria_user(usuario,categoria)
+                cat must equalTo(1)
+            }
+        } 
+
     }
 }
