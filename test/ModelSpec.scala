@@ -247,5 +247,15 @@ class ModelSpec extends Specification {
             }
         }  
 
+        "Crear categoria asociada a un usuario - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val usuario = "Jesus"
+                val categoria = "Software"
+                Task.create_categoria_user(usuario,categoria)
+                val cat = Task.comprueba_categoria_user(usuario,categoria)
+                cat must not equalTo(1)
+            }
+        } 
+
     }
 }
