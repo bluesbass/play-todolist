@@ -145,8 +145,8 @@ object Task {
    //Funcion para crear una categoria asociada a un usuario
   def create_categoria_user(login: String, categoria: String) {
    DB.withConnection { implicit c =>
-
-    create_categoria(categoria)
+    if(comprueba_categoria(categoria)!=1)
+      create_categoria(categoria)
 
     SQL("insert into user_categ (usuario, categoria) values ({login}, {categoria})").on(
                'login -> login,
