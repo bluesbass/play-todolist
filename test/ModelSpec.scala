@@ -233,4 +233,19 @@ class ModelSpec extends Specification {
         }        
 
     }  
+
+    "Feature 4" should{
+
+         /* TESTS FEATURE 4 */ 
+
+         "Crear una categoria sin usuario asociado - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val categoria = "Software"                
+                Task.create_categoria(categoria)
+                val cat = Task.comprueba_categoria(categoria)
+                cat must not equalTo(Nil)
+            }
+        }  
+
+    }
 }
