@@ -253,7 +253,7 @@ class ModelSpec extends Specification {
                 val categoria = "Software"
 
                 Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
-                
+
                 Task.create_categoria_user(usuario,categoria)
                 val cat = Task.comprueba_categoria_user(usuario,categoria)
                 cat must equalTo(1)
@@ -363,6 +363,19 @@ class ModelSpec extends Specification {
                 val tarea = Task.consultaTareaCategoria(usuario,categoria)
                 tarea.head.label must equalTo("Test categoria")
                 tarea.tail.head.label must equalTo("Test categoria 2")
+
+            }
+        }
+
+
+        "Listar tareas de un usuario inexistente de una categoria - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val usuario = "Pascualinex"
+                val categoria = "Software"
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea must equalTo(Nil)
 
             }
         }
