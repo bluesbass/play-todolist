@@ -310,5 +310,45 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Modificar una tarea inexistente - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create("Test")
+                val id = Task.consultaId   
+                val formato = new SimpleDateFormat("dd-MM-yyyy")           
+                val fecha2 = formato.parse("10-11-2014")                
+                val label2 = "Test categoria modificada"
+                val categoria2 = "Hardware"
+
+                Task.modificar_task(id+1,label2,fecha2,categoria2)
+
+                val tarea = Task.consultaTarea(id)
+                tarea.head.label must equalTo("Test")
+            }
+        }
+
+        "Listar tareas de un usuario de una categoria - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("10-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+                val label2 = "Test categoria 2"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+                Task.create_task_categoria(label2,usuario,fecha,categoria)
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea.head.label must equalTo("Test categoria")
+                tarea.tail.head.label must equalTo("Test categoria 2")
+
+            }
+        }
+
     }
 }

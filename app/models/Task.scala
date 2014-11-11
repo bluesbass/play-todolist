@@ -177,5 +177,18 @@ object Task {
     ).executeUpdate()
     }
    }
+
+   def  eliminar_categoria_user(usuario: String, categoria: String) {
+    DB.withConnection { implicit c => 
+      SQL("delete from user_categ where usuario={usuario} and categoria={categoria}").on(
+        'usuario -> usuario, 'categoria -> categoria
+      ).executeUpdate()
+      }
+    }
+
+
+    def consultaTareaCategoria(usuario: String, categoria: String): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={usaurio} and categoria={categoria}").on('usaurio -> usuario, 'categoria -> categoria).as(task *)
+   }
   
 }
