@@ -380,5 +380,19 @@ class ModelSpec extends Specification {
             }
         }
 
+        "Listar tareas de un usuario de una categoria inexistente - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val usuario = "Jesus"
+                val categoria = "Catacroquer"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea must equalTo(Nil)
+
+            }
+        }
+
     }
 }
