@@ -443,6 +443,32 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Crear una categoria asociada a un usuario que ya la tenia asociada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
+        status(result) must equalTo(CREATED)
+
+        contentAsString(result2) must equalTo("El usuario "+login+" no existe ya tenia asociada la categoria "+categoria)
+        status(result2) must equalTo(NOT_FOUND)
+
+
+      }
+    }
+
   }
 
 }
