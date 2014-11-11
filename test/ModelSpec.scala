@@ -251,6 +251,9 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 val usuario = "Jesus"
                 val categoria = "Software"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+                
                 Task.create_categoria_user(usuario,categoria)
                 val cat = Task.comprueba_categoria_user(usuario,categoria)
                 cat must equalTo(1)
@@ -262,6 +265,10 @@ class ModelSpec extends Specification {
                 val usuario = "Jesus"
                 val usuario2 = "Domingo"
                 val categoria = "Software"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+                Task.eliminar_categoria_user(usuario2,categoria) //Con esta funcion me independizo del estado de la bdd 
+
                 Task.create_categoria_user(usuario,categoria)
                 Task.create_categoria_user(usuario2,categoria)
                 val cat = Task.comprueba_categoria_user(usuario,categoria)
@@ -276,6 +283,9 @@ class ModelSpec extends Specification {
                 val usuario = "Jesus"
                 val categoria = "Software"
                 val label = "Test categoria"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
                 Task.create_categoria_user(usuario,categoria)
                 Task.create_task_categoria(label,usuario,fecha,categoria)
 
@@ -292,10 +302,16 @@ class ModelSpec extends Specification {
                 val usuario = "Jesus"
                 val categoria = "Software"
                 val label = "Test categoria"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
                 Task.create_categoria_user(usuario,categoria)
                 Task.create_task_categoria(label,usuario,fecha,categoria)
 
                 val categoria2 = "Hardware"
+
+                Task.eliminar_categoria_user(usuario,categoria2) //Con esta funcion me independizo del estado de la bdd 
+
                 Task.create_categoria_user(usuario,categoria2)
 
                 val id = Task.consultaId                
@@ -338,6 +354,7 @@ class ModelSpec extends Specification {
                 val label2 = "Test categoria 2"
 
                 Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+                Task.eliminarTaskUser(usuario)
 
                 Task.create_categoria_user(usuario,categoria)
                 Task.create_task_categoria(label,usuario,fecha,categoria)
