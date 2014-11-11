@@ -418,6 +418,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
           )
 
+        contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
         status(result) must equalTo(CREATED)
 
       }
