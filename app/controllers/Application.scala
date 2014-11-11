@@ -23,6 +23,10 @@ object Application extends Controller {
       "label" -> nonEmptyText
    ) 
 
+  val categoriaForm = Form(
+      "categoria" -> nonEmptyText
+   ) 
+
   //Controlar que si el id no existe devuelva 404
 
   //Se ha puesto que al acceder a index se cargue el form de la practica anterior para poder seguir utilizandolo
@@ -143,6 +147,25 @@ object Application extends Controller {
     }
       
    }
+
+
+   //Funcion para crear una categoria asociada a un usuario
+  def newCategoriaUser(login: String) = Action { implicit request =>
+    categoriaForm.bindFromRequest.fold(
+      errors => BadRequest(views.html.index(Task.all_user(login), errors)),
+      categoria => {
+        if(Task.comprueba_categoria_user(login,categoria)==0 && Task.existeUser(login)!=0)
+        {
+          Task.create_categoria_user(login, categoria)
+          val json = "Categoria asociada al usuario "+login 
+          Created(json)  
+        }
+        else
+          NotFound("El usuario "+login+" no existe ya tenia asociada la categoria "+categoria)
+        
+        }
+      )
+     }
 
 
 }
