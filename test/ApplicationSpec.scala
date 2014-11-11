@@ -580,6 +580,35 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+
+    "Modificar una tarea de un usuario - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "07-11-2014"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test tarea categoria modificada"
+
+        Task.create_user("Test",login)
+        val id = Task.consultaId
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label),("fecha",fecha),("categoria",categoria2))  
+          )                
+
+        contentAsString(result) must equalTo("Tarea modificada satisfactoriamente")
+        status(result) must equalTo(OK)
+
+      }
+    }
+
   }
 
 }
