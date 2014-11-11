@@ -536,6 +536,26 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Crear una tarea a un usuario en una categoria no asociada previamente - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )                
+
+        contentAsString(result) must equalTo("El usuario "+login+" no existe, ya tenia asociada la categoria "+categoria+", o ha construido mal la fecha (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
     
 
   }
