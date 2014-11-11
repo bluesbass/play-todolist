@@ -494,6 +494,31 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Crear una tarea a un usuario en una categoria determinada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val formato = new SimpleDateFormat("dd-MM-yyyy")
+        val fecha = formato.parse("07-11-2014")              
+        val categoria = "Software"
+        val label = "Test categoria"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result = Application.newTaskCategoria(label,login,fecha,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("fecha",fecha),("label",label))  
+          )                
+
+        contentAsString(result) must equalTo("Creada tarea del usuario "+login+" en la categoria "+categoria)
+        status(result) must equalTo(CREATED)
+
+      }
+    }
+
   }
 
 }
