@@ -586,11 +586,15 @@ class ApplicationSpec extends Specification with JsonMatchers{
 
         val login = "Jesus"
         val fecha = "07-11-2014"              
+        val fecha2 = "10-11-2014"              
         val categoria = "Software"
         val categoria2 = "Hardware"
-        val label = "Test tarea categoria modificada"
+        val label2 = "Test tarea categoria modificada"
 
-        Task.create_user("Test",login)
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
         val id = Task.consultaId
 
         Task.eliminar_categoria_user(login,categoria)
@@ -600,8 +604,11 @@ class ApplicationSpec extends Specification with JsonMatchers{
           )
 
         val result = Application.modificarTask(id,login,categoria)(  
-          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label),("fecha",fecha),("categoria",categoria2))  
-          )                
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )      
+
+        val tarea = consultaTask(id)          
+        tarea.head.label must equalTo(label2)
 
         contentAsString(result) must equalTo("Tarea modificada satisfactoriamente")
         status(result) must equalTo(OK)
