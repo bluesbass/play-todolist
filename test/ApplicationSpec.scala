@@ -461,7 +461,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
           )
 
-        contentAsString(result) must equalTo("El usuario "+login+" no existe ya tenia asociada la categoria "+categoria)
+        contentAsString(result) must equalTo("El usuario "+login+" no existe o ya tenia asociada la categoria "+categoria)
         status(result) must equalTo(NOT_FOUND)
 
 
@@ -487,7 +487,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
         contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
         status(result) must equalTo(CREATED)
 
-        contentAsString(result2) must equalTo("El usuario "+login+" no existe ya tenia asociada la categoria "+categoria)
+        contentAsString(result2) must equalTo("El usuario "+login+" no existe o ya tenia asociada la categoria "+categoria)
         status(result2) must equalTo(NOT_FOUND)
 
 
@@ -498,10 +498,9 @@ class ApplicationSpec extends Specification with JsonMatchers{
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
         val login = "Jesus"
-        val formato = new SimpleDateFormat("dd-MM-yyyy")
-        val fecha = formato.parse("07-11-2014")              
+        val fecha = "2014-11-07"              
         val categoria = "Software"
-        val label = "Test categoria"
+        val label = "Test tarea categoria"
 
         Task.eliminar_categoria_user(login,categoria)
 
@@ -509,8 +508,8 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
           )
 
-        val result = Application.newTaskCategoria(label,login,fecha,categoria)(  
-          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("fecha",fecha),("label",label))  
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
           )                
 
         contentAsString(result) must equalTo("Creada tarea del usuario "+login+" en la categoria "+categoria)
