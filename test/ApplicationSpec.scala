@@ -809,13 +809,13 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
           )
 
-        val resultaux = Application.newTaskCategoria(login,categoria)(  
+        val resultaux2 = Application.newTaskCategoria(login,categoria)(  
           FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
           )         
 
         val id= Task.consultaId       
 
-        val resultaux2 = Application.newTaskCategoria(login,categoria)(  
+        val resultaux3 = Application.newTaskCategoria(login,categoria)(  
           FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label2),("fecha",fecha))  
           )
 
@@ -826,7 +826,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
 
         contentType(result) must beSome.which(_ == "application/json")
 
-        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":"+label+"},{\"id\":"+ id2 + ",\"label\":"+label2+"}]")
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\""+label+"\"},{\"id\":"+ id2 + ",\"label\":\""+label2+"\"}]")
 
         status(result) must equalTo(OK)
 

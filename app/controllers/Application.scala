@@ -245,5 +245,18 @@ object Application extends Controller {
       )
   }
 
+  //recibe todas las tareas del user en una fecha y las muestra en el formato json 
+  def consultaTaskUserCategoria(login: String, categoria : String) = Action {
+    if(Task.existeUser(login)==0)
+      NotFound("El usuario "+login+" no existe")
+    else if(Task.comprueba_categoria_user(login,categoria)==0)
+      NotFound("El usuario "+login+" no tiene asociada la categoria "+categoria)
+    else
+    {
+      val json = Json.toJson(Task.consultaTareaCategoria(login,categoria))
+      Ok(json)  
+    }
+   }
+
 
 }
