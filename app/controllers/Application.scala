@@ -234,7 +234,7 @@ object Application extends Controller {
         else if(Task.formatoFechaPost(taskCateg.fecha)!=true)
           NotFound("El formato de la fecha "+taskCateg.fecha+" es incorrecto (yyyy-MM-dd)")
         else if(Task.comprueba_categoria_user(login,taskCateg.categoria)==0)
-          NotFound("El usuario no tiene asociada la categoria "+taskCateg.categoria)
+          NotFound("El usuario "+login+" no tiene asociada la categoria "+taskCateg.categoria)
         else
         {
           Task.modificar_task(id, taskCateg.label, fecha, taskCateg.categoria)          
