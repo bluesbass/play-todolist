@@ -12,6 +12,7 @@ import models.Task
 
 
 case class TaskData(label: String, fecha: String)
+case class TaskCateg(label: String, fecha: String, categoria: String)
 
 object Application extends Controller {
 
@@ -24,6 +25,14 @@ object Application extends Controller {
   val taskForm = Form(
       "label" -> nonEmptyText
    ) 
+
+  val taskCategoriaForm = Form(
+     mapping( 
+      "label" -> nonEmptyText,
+      "fecha" -> nonEmptyText,
+      "categoria" -> nonEmptyText
+      )(TaskCateg.apply)(TaskCateg.unapply)
+   )
 
   val taskDataForm = Form(
      mapping( 
@@ -196,6 +205,39 @@ object Application extends Controller {
         }
       )
      }
+
+  //Funcion para modificar una tarea asociada a una categoria y a un user
+  def modificarTask(id: Long,login: String,categoria: String) = Action { implicit request =>
+    taskCategoriaForm.bindFromRequest.fold(
+      errors => BadRequest("Error en la peticion"),
+      taskCateg => {
+
+        val id = Task.consultaId
+        val resultado = Task.consultaTarea(id)
+        val formato = new SimpleDateFormat("yyyy-MM-dd")
+        val fecha = formato.parse(taskCateg.fecha)
+
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")
+        else if(Task.comprueba_categoria_user(login,categoria)==0)
+          NotFound("El usuario no tiene asociada la categoria "+categoria)
+        else if(resultado==Nil)
+          NotFound("La tarea con id "+id+" no existe")
+        else if(Task.formatoFechaPost(taskCateg.fecha)!=true)
+          NotFound("El formato de la fecha "+taskCateg.fecha+" es incorrecto (yyyy-MM-dd)")
+        else if(Task.comprueba_categoria_user(login,taskCateg.categoria)==0)
+          NotFound("El usuario no tiene asociada la categoria "+taskCateg.categoria)
+        else
+        {
+          Task.modificar_task(id, taskCateg.label, fecha, taskCateg.categoria)          
+          val json = "Modificada la tarea del usuario "+login+" en la categoria "+categoria
+          Created(json)
+        }
+
+      }
+        
+      )
+  }
 
 
 }
