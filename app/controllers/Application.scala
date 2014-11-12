@@ -11,6 +11,9 @@ import java.text._
 import models.Task
 
 
+case class TaskData(label: String, fecha: String)
+case class TaskCateg(label: String, fecha: String, categoria: String)
+
 object Application extends Controller {
 
   //Estructura Json para mostrar las Tareas
@@ -21,6 +24,25 @@ object Application extends Controller {
 
   val taskForm = Form(
       "label" -> nonEmptyText
+   ) 
+
+  val taskCategoriaForm = Form(
+     mapping( 
+      "label" -> nonEmptyText,
+      "fecha" -> nonEmptyText,
+      "categoria" -> nonEmptyText
+      )(TaskCateg.apply)(TaskCateg.unapply)
+   )
+
+  val taskDataForm = Form(
+     mapping( 
+      "label" -> nonEmptyText,
+      "fecha" -> nonEmptyText
+      )(TaskData.apply)(TaskData.unapply)
+   ) 
+
+  val categoriaForm = Form(
+      "categoria" -> nonEmptyText
    ) 
 
   //Controlar que si el id no existe devuelva 404
@@ -142,6 +164,98 @@ object Application extends Controller {
       NotFound("La tarea que intentas eliminar no existe")
     }
       
+   }
+
+
+   //Funcion para crear una categoria asociada a un usuario
+  def newCategoriaUser(login: String) = Action { implicit request =>
+    categoriaForm.bindFromRequest.fold(
+      errors => BadRequest(views.html.index(Task.all_user(login), errors)),
+      categoria => {
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")        
+        else if(Task.comprueba_categoria_user(login,categoria)!=0)
+          NotFound("El usuario "+login+" ya tenia asociada la categoria "+categoria)          
+        else
+        {
+          Task.create_categoria_user(login, categoria)
+          val json = "Categoria asociada al usuario "+login 
+          Created(json)  
+        }
+        
+          
+        
+        }
+      )
+     }
+
+   //Funcion para crear una tarea con categoria asociada a un usuario
+  def newTaskCategoria(login: String, categoria: String) = Action { implicit request =>
+    taskDataForm.bindFromRequest.fold(
+      errors => BadRequest("Error en la peticion"),
+      taskData => {
+
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")          
+        else if (Task.comprueba_categoria_user(login,categoria)==0) 
+          NotFound("El usuario "+login+" no teniene asociada la categoria "+categoria)
+        else if (Task.formatoFechaPost(taskData.fecha)!=true)
+          NotFound("El formato de la fecha "+taskData.fecha+" es incorrecto (yyyy-MM-dd)")
+        else
+        {
+          val formato = new SimpleDateFormat("yyyy-MM-dd")
+          val fechaAux = formato.parse(taskData.fecha)    
+
+          Task.create_task_categoria(taskData.label,login,fechaAux,categoria)          
+          val json = "Creada tarea del usuario "+login+" en la categoria "+categoria;
+          Created(json)  
+        }
+      }
+      )
+     }
+
+  //Funcion para modificar una tarea asociada a una categoria y a un user
+  def modificarTask(id: Long,login: String,categoria: String) = Action { implicit request =>
+    taskCategoriaForm.bindFromRequest.fold(
+      errors => BadRequest("Error en la peticion"),
+      taskCateg => {
+
+        val formato = new SimpleDateFormat("yyyy-MM-dd")
+        val fecha = formato.parse(taskCateg.fecha)
+
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")
+        else if(Task.comprueba_categoria_user(login,categoria)==0)
+          NotFound("El usuario "+login+" no tiene asociada la categoria "+categoria)
+        else if(Task.consultaTareaCategoriaId(login,categoria,id)==0)
+          NotFound("La tarea con id "+id+" no existe en la categoria"+categoria)
+        else if(Task.formatoFechaPost(taskCateg.fecha)!=true)
+          NotFound("El formato de la fecha "+taskCateg.fecha+" es incorrecto (yyyy-MM-dd)")
+        else if(Task.comprueba_categoria_user(login,taskCateg.categoria)==0)
+          NotFound("El usuario "+login+" no tiene asociada la categoria "+taskCateg.categoria)
+        else
+        {
+          Task.modificar_task(id, taskCateg.label, fecha, taskCateg.categoria)          
+          val json = "Modificada la tarea del usuario "+login+" en la categoria "+categoria
+          Created(json)
+        }
+
+      }
+        
+      )
+  }
+
+  //recibe todas las tareas del user en una fecha y las muestra en el formato json 
+  def consultaTaskUserCategoria(login: String, categoria : String) = Action {
+    if(Task.existeUser(login)==0)
+      NotFound("El usuario "+login+" no existe")
+    else if(Task.comprueba_categoria_user(login,categoria)==0)
+      NotFound("El usuario "+login+" no tiene asociada la categoria "+categoria)
+    else
+    {
+      val json = Json.toJson(Task.consultaTareaCategoria(login,categoria))
+      Ok(json)  
+    }
    }
 
 

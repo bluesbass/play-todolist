@@ -146,7 +146,7 @@ class ModelSpec extends Specification {
             }
         }
 
-        "Consultar formato de fecha correcto para POST (dd-mm-yyyy) - Feature 3" in {
+        "Consultar formato de fecha correcto para POST (yyyy-mm-dd) - Feature 3" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 val result = Task.formatoFechaPost("2014-11-07")
                 result must equalTo(true)
@@ -219,18 +219,169 @@ class ModelSpec extends Specification {
                 val tareas = Task.all_user_fecha("Magic",fecha2)
                 tareas must equalTo(Nil)
             }
-        } 
-
-        "Consultar total de tareas de un usuario existente con una fecha no registrada- Feature 3" in {  
-            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                val formato = new SimpleDateFormat("dd-MM-yyyy")
-                val fecha = formato.parse("07-11-2014")
-                val fecha2 = formato.parse("08-11-2014")
-                Task.create_user_fecha("Test","Magic",fecha)
-                val tareas = Task.all_user_fecha("Magic",fecha2)
-                tareas must equalTo(Nil)
-            }
-        }        
+        }       
 
     }  
+
+    "Feature 4" should{
+
+         /* TESTS FEATURE 4 */ 
+
+         "Crear una categoria sin usuario asociado - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val categoria = "Software"                
+                Task.create_categoria(categoria)
+                val cat = Task.comprueba_categoria(categoria)
+                cat must equalTo(1)
+            }
+        }  
+
+        "Crear categoria asociada a un usuario - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val usuario = "Jesus"
+                val categoria = "Software"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria)
+                val cat = Task.comprueba_categoria_user(usuario,categoria)
+                cat must equalTo(1)
+            }
+        } 
+
+        "Crear la misma categoria asociada a diferentes usuarios - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val usuario = "Jesus"
+                val usuario2 = "Domingo"
+                val categoria = "Software"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+                Task.eliminar_categoria_user(usuario2,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_categoria_user(usuario2,categoria)
+                val cat = Task.comprueba_categoria_user(usuario,categoria)
+                cat must equalTo(1)
+            }
+        }
+
+        "Crear una tarea a un usuario con una categoria determinada - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+
+                val tarea = Task.consultaTarea(Task.consultaId)
+                tarea.head.label must equalTo("Test categoria")
+
+            }
+        }
+
+        "Modificar una tarea de un usuario con una categoria determinada - Feature 4" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("07-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+
+                val categoria2 = "Hardware"
+
+                Task.eliminar_categoria_user(usuario,categoria2) //Con esta funcion me independizo del estado de la bdd 
+
+                Task.create_categoria_user(usuario,categoria2)
+
+                val id = Task.consultaId                
+                val fecha2 = formato.parse("10-11-2014")                
+                val label2 = "Test categoria modificada"
+
+                Task.modificar_task(id,label2,fecha2,categoria2)
+
+                val tarea = Task.consultaTarea(id)
+                tarea.head.label must equalTo("Test categoria modificada")
+
+            }
+        }
+
+        "Modificar una tarea inexistente - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                Task.create("Test")
+                val id = Task.consultaId   
+                val formato = new SimpleDateFormat("dd-MM-yyyy")           
+                val fecha2 = formato.parse("10-11-2014")                
+                val label2 = "Test categoria modificada"
+                val categoria2 = "Hardware"
+
+                Task.modificar_task(id+1,label2,fecha2,categoria2)
+
+                val tarea = Task.consultaTarea(id)
+                tarea.head.label must equalTo("Test")
+            }
+        }
+
+        "Listar tareas de un usuario de una categoria - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val formato = new SimpleDateFormat("dd-MM-yyyy")
+                val fecha = formato.parse("10-11-2014")              
+                val usuario = "Jesus"
+                val categoria = "Software"
+                val label = "Test categoria"
+                val label2 = "Test categoria 2"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+                Task.eliminarTaskUser(usuario)
+
+                Task.create_categoria_user(usuario,categoria)
+                Task.create_task_categoria(label,usuario,fecha,categoria)
+                Task.create_task_categoria(label2,usuario,fecha,categoria)
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea.head.label must equalTo("Test categoria")
+                tarea.tail.head.label must equalTo("Test categoria 2")
+
+            }
+        }
+
+
+        "Listar tareas de un usuario inexistente de una categoria - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val usuario = "Pascualinex"
+                val categoria = "Software"
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea must equalTo(Nil)
+
+            }
+        }
+
+        "Listar tareas de un usuario de una categoria inexistente - Feature 4" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+                val usuario = "Jesus"
+                val categoria = "Catacroquer"
+
+                Task.eliminar_categoria_user(usuario,categoria) //Con esta funcion me independizo del estado de la bdd 
+
+                val tarea = Task.consultaTareaCategoria(usuario,categoria)
+                tarea must equalTo(Nil)
+
+            }
+        }
+
+    }
 }

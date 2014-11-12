@@ -94,7 +94,7 @@ object Task {
       SQL("select * from task where usuario='Magic'").as(task *)
    }
 
-   //Funcion para crear una tarea al usuario por defecto Magic
+   //Funcion para crear una tarea al usuario login
   def create_user_fecha(label: String,login: String,fecha: Date) {
    DB.withConnection { implicit c =>
     SQL("insert into task (label,usuario,fecha) values ({label},{login},{fecha})").on(
@@ -129,5 +129,69 @@ object Task {
     ).executeUpdate()
     }
    }
-  
+
+   def create_categoria(categoria: String) {
+    DB.withConnection { implicit c =>
+        SQL("insert into categoria (nombre) values({categoria})").on(
+        'categoria -> categoria
+    ).executeUpdate() 
+    }
+  }
+
+  def comprueba_categoria(categoria: String) : Long = DB.withConnection { implicit c =>
+    SQL("select count(*) from categoria where nombre={categoria}").on('categoria -> categoria).as(scalar[Long].single)
+  }
+
+   //Funcion para crear una categoria asociada a un usuario
+  def create_categoria_user(login: String, categoria: String) {
+   DB.withConnection { implicit c =>
+    if(comprueba_categoria(categoria)!=1)
+      create_categoria(categoria)
+
+    SQL("insert into user_categ (usuario, categoria) values ({login}, {categoria})").on(
+               'login -> login,
+               'categoria -> categoria
+            ).executeUpdate()     
+
+    }
+   }
+
+  def comprueba_categoria_user(login: String, categoria: String) : Long = DB.withConnection { implicit c =>
+    SQL("select count(*) from user_categ where usuario={login} and categoria={categoria}").on('login -> login,'categoria -> categoria).as(scalar[Long].single)
+  }
+
+  //Funcion para crear una tarea con categoria
+  def create_task_categoria(label: String,login: String,fecha: Date, categoria: String) {
+   DB.withConnection { implicit c =>
+    SQL("insert into task (label,usuario,fecha,categoria) values ({label},{login},{fecha},{categoria})").on(
+      'label -> label,'login -> login,'fecha -> fecha,'categoria->categoria
+    ).executeUpdate()
+    }
+   } 
+
+  //Funcion para crear una tarea con categoria
+  def modificar_task(id: Long, label: String, fecha: Date, categoria: String) {
+   DB.withConnection { implicit c =>
+    SQL("update task set label={label},fecha={fecha},categoria={categoria} where id={id}").on(
+      'id -> id,'label -> label,'fecha -> fecha,'categoria->categoria
+    ).executeUpdate()
+    }
+   }
+
+   def  eliminar_categoria_user(usuario: String, categoria: String) {
+    DB.withConnection { implicit c => 
+      SQL("delete from user_categ where usuario={usuario} and categoria={categoria}").on(
+        'usuario -> usuario, 'categoria -> categoria
+      ).executeUpdate()
+      }
+    }
+
+
+    def consultaTareaCategoria(usuario: String, categoria: String): List[Task] = DB.withConnection { implicit c =>
+      SQL("select * from task where usuario={usuario} and categoria={categoria}").on('usuario -> usuario, 'categoria -> categoria).as(task *)
+   }
+
+   def consultaTareaCategoriaId(usuario: String, categoria: String, id: Long): Long = DB.withConnection { implicit c =>
+      SQL("select count(*) from task where usuario={usuario} and categoria={categoria} and id={id}").on('usuario -> usuario, 'categoria -> categoria, 'id ->id).as(scalar[Long].single)
+  }
 }

@@ -400,4 +400,539 @@ class ApplicationSpec extends Specification with JsonMatchers{
     }
 
   }
+
+
+  "Feature 4" should {
+
+    /* TESTS FEATURE 4 */ 
+
+    "Crear una categoria asociada a un usuario existente - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
+        status(result) must equalTo(CREATED)
+
+      }
+    }
+
+    "Crear una categoria asociada a varios usuarios existentes - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val login2 = "Domingo"
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+        val result2 = Application.newCategoriaUser(login2)(  
+          FakeRequest(POST, "/"+login2+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
+        status(result) must equalTo(CREATED)
+
+        contentAsString(result2) must equalTo("Categoria asociada al usuario "+login2)
+        status(result2) must equalTo(CREATED)
+
+      }
+    }
+
+    "Crear una categoria asociada a un usuario inexistente - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Pascualinex"
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
+        status(result) must equalTo(NOT_FOUND)
+
+
+      }
+    }
+
+    "Crear una categoria asociada a un usuario que ya la tenia asociada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
+        status(result) must equalTo(CREATED)
+
+        contentAsString(result2) must equalTo("El usuario "+login+" ya tenia asociada la categoria "+categoria)
+        status(result2) must equalTo(NOT_FOUND)
+
+
+      }
+    }
+
+    "Crear una tarea a un usuario en una categoria determinada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )                
+
+        contentAsString(result) must equalTo("Creada tarea del usuario "+login+" en la categoria "+categoria)
+        status(result) must equalTo(CREATED)
+
+      }
+    }
+
+    "Crear una tarea a un usuario inexistente en una categoria determinada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Pascualinex"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )                
+
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Crear una tarea a un usuario en una categoria no asociada previamente - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )                
+
+        contentAsString(result) must equalTo("El usuario "+login+" no teniene asociada la categoria "+categoria)
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Crear una tarea a un usuario en una categoria determinada, con el formato de fecha incorrecto - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "07-11-2014"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val result = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )                
+
+        contentAsString(result) must equalTo("El formato de la fecha "+fecha+" es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+
+    "Modificar una tarea de un usuario - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "2014-11-10"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux3 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria2))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )      
+
+        val tarea = Task.consultaTarea(id)          
+        tarea.head.label must equalTo(label2)
+
+        contentAsString(result) must equalTo("Modificada la tarea del usuario "+login+" en la categoria "+categoria)
+        status(result) must equalTo(CREATED)
+
+      }
+    }
+
+    "Modificar una tarea de un usuario inexistente - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val login2 = "Pascualinex"
+        val fecha = "2014-11-07"              
+        val fecha2 = "2014-11-10"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux3 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria2))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login2,categoria)(  
+          FakeRequest(POST, "/"+login2+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )      
+
+        contentAsString(result) must equalTo("El usuario "+login2+" no existe")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Modificar una tarea de un usuario que no tiene asociada la categoria que se pasa por parametro - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "2014-11-10"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria2))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )      
+
+        contentAsString(result) must equalTo("El usuario "+login+" no tiene asociada la categoria "+categoria)
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Modificar una tarea de un usuario que no tiene asociada la categoria a la que se quiere modificar - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "2014-11-10"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )      
+
+        contentAsString(result) must equalTo("El usuario "+login+" no tiene asociada la categoria "+categoria2)
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Modificar una tarea que no existe de un usuario en una categoria- Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "2014-11-10"              
+        val categoria = "Software"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId+1
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria))  
+          )      
+
+        contentAsString(result) must equalTo("La tarea con id "+id+" no existe en la categoria"+categoria)
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Modificar una tarea  de un usuario con un formato de fecha incorrecto- Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "10-11-2014"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux3 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria2))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )        
+
+        contentAsString(result) must equalTo("El formato de la fecha "+fecha2+" es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    "Listar tareas de un usuario dentro de una determinada categoria - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux2 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )         
+
+        val id= Task.consultaId       
+
+        val resultaux3 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label2),("fecha",fecha))  
+          )
+
+        val id2= Task.consultaId
+
+        val result = Application.consultaTaskUserCategoria(login,categoria)(FakeRequest())
+
+        contentType(result) must beSome.which(_ == "application/json")
+
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\""+label+"\"},{\"id\":"+ id2 + ",\"label\":\""+label2+"\"}]")
+
+        status(result) must equalTo(OK)
+
+      }
+    }
+
+    "Listar tareas de un usuario dentro de una determinada categoria (GET) - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux2 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )         
+
+        val id= Task.consultaId       
+
+        val resultaux3 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label2),("fecha",fecha))  
+          )
+
+        val id2= Task.consultaId
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentType(result) must beSome.which(_ == "application/json")
+
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\""+label+"\"},{\"id\":"+ id2 + ",\"label\":\""+label2+"\"}]")
+
+        status(result) must equalTo(OK)
+
+      }
+    }
+
+    "Listar tareas de un usuario dentro de una determinada categoria (No tiene tareas creadas) - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentType(result) must beSome.which(_ == "application/json")
+
+        contentAsString(result) must contain("[]")
+
+        status(result) must equalTo(OK)
+
+      }
+    }
+
+    "Listar tareas de un usuario inexistente dentro de una determinada categoria - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Pascualinex"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
+
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+  }
+
+  "Listar tareas de un usuario dentro de una determinada categoria que no tiene asociada - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentAsString(result) must equalTo("El usuario "+login+" no tiene asociada la categoria "+categoria)
+
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
 }
