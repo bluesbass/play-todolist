@@ -870,6 +870,30 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Listar tareas de un usuario dentro de una determinada categoria (No tiene tareas creadas) - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentType(result) must beSome.which(_ == "application/json")
+
+        contentAsString(result) must contain("[]")
+
+        status(result) must equalTo(OK)
+
+      }
+    }
+
     "Listar tareas de un usuario inexistente dentro de una determinada categoria - Feature 4" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
