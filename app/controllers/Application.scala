@@ -228,7 +228,7 @@ object Application extends Controller {
         if(Task.existeUser(login)==0)
           NotFound("El usuario "+login+" no existe")
         else if(Task.comprueba_categoria_user(login,categoria)==0)
-          NotFound("El usuario no tiene asociada la categoria "+categoria)
+          NotFound("El usuario "+login+" no tiene asociada la categoria "+categoria)
         else if(resultado==Nil)
           NotFound("La tarea con id "+id+" no existe")
         else if(Task.formatoFechaPost(taskCateg.fecha)!=true)
