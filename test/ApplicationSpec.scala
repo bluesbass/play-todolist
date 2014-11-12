@@ -461,7 +461,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
           )
 
-        contentAsString(result) must equalTo("El usuario "+login+" no existe o ya tenia asociada la categoria "+categoria)
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
         status(result) must equalTo(NOT_FOUND)
 
 
@@ -487,7 +487,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
         contentAsString(result) must equalTo("Categoria asociada al usuario "+login)
         status(result) must equalTo(CREATED)
 
-        contentAsString(result2) must equalTo("El usuario "+login+" no existe o ya tenia asociada la categoria "+categoria)
+        contentAsString(result2) must equalTo("El usuario "+login+" ya tenia asociada la categoria "+categoria)
         status(result2) must equalTo(NOT_FOUND)
 
 
@@ -530,7 +530,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
           )                
 
-        contentAsString(result) must equalTo("El usuario "+login+" no existe, ya tenia asociada la categoria "+categoria+", o ha construido mal la fecha (yyyy-MM-dd)")
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
         status(result) must equalTo(NOT_FOUND)
 
       }
@@ -550,7 +550,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
           )                
 
-        contentAsString(result) must equalTo("El usuario "+login+" no existe, ya tenia asociada la categoria "+categoria+", o ha construido mal la fecha (yyyy-MM-dd)")
+        contentAsString(result) must equalTo("El usuario "+login+" no teniene asociada la categoria "+categoria)
         status(result) must equalTo(NOT_FOUND)
 
       }
@@ -574,7 +574,7 @@ class ApplicationSpec extends Specification with JsonMatchers{
           FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
           )                
 
-        contentAsString(result) must equalTo("El usuario "+login+" no existe, ya tenia asociada la categoria "+categoria+", o ha construido mal la fecha (yyyy-MM-dd)")
+        contentAsString(result) must equalTo("El formato de la fecha "+fecha+" es incorrecto (yyyy-MM-dd)")
         status(result) must equalTo(NOT_FOUND)
 
       }

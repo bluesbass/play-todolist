@@ -172,14 +172,18 @@ object Application extends Controller {
     categoriaForm.bindFromRequest.fold(
       errors => BadRequest(views.html.index(Task.all_user(login), errors)),
       categoria => {
-        if(Task.comprueba_categoria_user(login,categoria)==0 && Task.existeUser(login)!=0)
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")        
+        else if(Task.comprueba_categoria_user(login,categoria)!=0)
+          NotFound("El usuario "+login+" ya tenia asociada la categoria "+categoria)          
+        else
         {
           Task.create_categoria_user(login, categoria)
           val json = "Categoria asociada al usuario "+login 
           Created(json)  
         }
-        else
-          NotFound("El usuario "+login+" no existe o ya tenia asociada la categoria "+categoria)
+        
+          
         
         }
       )
@@ -190,7 +194,14 @@ object Application extends Controller {
     taskDataForm.bindFromRequest.fold(
       errors => BadRequest("Error en la peticion"),
       taskData => {
-        if(Task.comprueba_categoria_user(login,categoria)!=0 && Task.existeUser(login)!=0 && Task.formatoFechaPost(taskData.fecha))
+
+        if(Task.existeUser(login)==0)
+          NotFound("El usuario "+login+" no existe")          
+        else if (Task.comprueba_categoria_user(login,categoria)==0) 
+          NotFound("El usuario "+login+" no teniene asociada la categoria "+categoria)
+        else if (Task.formatoFechaPost(taskData.fecha)!=true)
+          NotFound("El formato de la fecha "+taskData.fecha+" es incorrecto (yyyy-MM-dd)")
+        else
         {
           val formato = new SimpleDateFormat("yyyy-MM-dd")
           val fechaAux = formato.parse(taskData.fecha)    
@@ -199,10 +210,7 @@ object Application extends Controller {
           val json = "Creada tarea del usuario "+login+" en la categoria "+categoria;
           Created(json)  
         }
-        else
-          NotFound("El usuario "+login+" no existe, ya tenia asociada la categoria "+categoria+", o ha construido mal la fecha (yyyy-MM-dd)")
-        
-        }
+      }
       )
      }
 
