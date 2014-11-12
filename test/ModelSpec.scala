@@ -146,7 +146,7 @@ class ModelSpec extends Specification {
             }
         }
 
-        "Consultar formato de fecha correcto para POST (dd-mm-yyyy) - Feature 3" in {
+        "Consultar formato de fecha correcto para POST (yyyy-mm-dd) - Feature 3" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 val result = Task.formatoFechaPost("2014-11-07")
                 result must equalTo(true)
@@ -219,18 +219,7 @@ class ModelSpec extends Specification {
                 val tareas = Task.all_user_fecha("Magic",fecha2)
                 tareas must equalTo(Nil)
             }
-        } 
-
-        "Consultar total de tareas de un usuario existente con una fecha no registrada- Feature 3" in {  
-            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                val formato = new SimpleDateFormat("dd-MM-yyyy")
-                val fecha = formato.parse("07-11-2014")
-                val fecha2 = formato.parse("08-11-2014")
-                Task.create_user_fecha("Test","Magic",fecha)
-                val tareas = Task.all_user_fecha("Magic",fecha2)
-                tareas must equalTo(Nil)
-            }
-        }        
+        }       
 
     }  
 
