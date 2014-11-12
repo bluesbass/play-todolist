@@ -822,7 +822,44 @@ class ApplicationSpec extends Specification with JsonMatchers{
         val id2= Task.consultaId
 
         val result = Application.consultaTaskUserCategoria(login,categoria)(FakeRequest())
-        //val Some(tareas) = route(FakeRequest(GET, "/"+login+"/tasks/"+fechaget))
+
+        contentType(result) must beSome.which(_ == "application/json")
+
+        contentAsString(result) must contain("[{\"id\":"+ id + ",\"label\":\""+label+"\"},{\"id\":"+ id2 + ",\"label\":\""+label2+"\"}]")
+
+        status(result) must equalTo(OK)
+
+      }
+    }
+
+    "Listar tareas de un usuario dentro de una determinada categoria (GET) - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux2 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          )         
+
+        val id= Task.consultaId       
+
+        val resultaux3 = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label2),("fecha",fecha))  
+          )
+
+        val id2= Task.consultaId
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
 
         contentType(result) must beSome.which(_ == "application/json")
 

@@ -19,6 +19,6 @@ POST    /:login/tasks/:fecha        controllers.Application.newTaskUserFecha(log
 POST    /:login/NuevaCategoria      controllers.Application.newCategoriaUser(login: String)
 POST    /:login/:categoria/tasks    controllers.Application.newTaskCategoria(login: String, categoria: String)
 POST   /:login/:categoria/tasks/:id controllers.Application.modificarTask(id: Long,login: String,categoria: String)
-
+GET    /:login/:categoria/tasks     controllers.Application.consultaTaskUserCategoria(login: String,categoria: String)
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
