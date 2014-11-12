@@ -118,7 +118,7 @@ Se han dividido los tests en 2 apartados, tests de las funciones implementadas e
 
 La lista de funciones se ha dividido en 2 apartados, las funciones implementadas en la capa de **Controlador** y las funciones implementadas en la capa de **Modelo**.
 
-#####Capa Modelo
+#####Modelo
 
 - **`create_categoria(categoria: String)`** => El cometido de esta función es crear una categoria en la table 'categoria'.
 - **`comprueba_categoria(categoria: String) : Long`** => El cometido de esta función es el de comprobar si una categoria determinada ya está creada en la tabla 'categoria'.
@@ -126,59 +126,33 @@ La lista de funciones se ha dividido en 2 apartados, las funciones implementadas
 - **`comprueba_categoria_user(login: String, categoria: String) : Long`** => Comprueba si existe la asociación del usuario y categoria pasados por parámetros.
 - **`create_task_categoria(label: String,login: String,fecha: Date, categoria: String)`** => Crea una tarea con label, usuario,fecha y categoria, siempre que los parámetros sean correctos.
 - **`modificar_task(id: Long, label: String, fecha: Date, categoria: String)`** => Modifica la tarea con el id pasado por parámetro con los valores de los parámetros del resto de campos .
-- 
-AHDLASHFKJDHFKJDSHFKJLSDHFKJLSDHF KJLSDFSDFSDF
-SDF
-SDF
+- **`eliminar_categoria_user(usuario: String, categoria: String)`** => Esta funcion elimina la relacion entre un usuario y una categoría en la tabla user_categ. Es una función auxiliar.
+- **`consultaTareaCategoria(usuario: String, categoria: String): List[Task]`** => Devuelve una lista de tareas de un usuario en una categoria determinada.
+- **`consultaTareaCategoriaId(usuario: String, categoria: String, id: Long): Long`** => Se trata de una función auxiliar que se utiliza para comprobar si una tarea con el id pasado por parámetro esta creada por el usuario y en la categoría que se indica.
 
-- **`formatoFechaPost(fecha: String) : Boolean`** => Esta función se encarga de comprobar si el formato de la fecha introducida al hacer una petición **POST** es correcto, en cuyo caso devolvería true. El formato correcto para realizar una petición **POST** con fecha es (yyyy-MM-dd).
-- **`formatoFecha(fecha: String) : Boolean`** => Esta función se encarga de comprobar si el formato de la fecha introducida al hacer una petición **GET** es correcto, en cuyo caso devolvería true. El formato correcto para realizar una petición **GET** con fecha es (dd-MM-yyyy).
-- **`existeUser(login: String) : Long`** => Función que comprueba la existencia de un usuario en la Base de Datos mediante una consulta sql en la que se realiza un *count* del número de usuarios con ese nombre en la tabla *task_user*, en caso de devolver 0 significará que el usuario no existe.
-- **`consultaId : Long`** => Esta función devuelve el id de la última tarea creada.
-- **`create(label: String)`** => Inserta en la BDD una nueva tarea con la descripcion pasada por parámetro.
-- **`create_user(label: String, login: String)`** => Inserta en la BDD una nueva tarea con descripcion y el usuario que la ha creado a partir de los parámetros.
-- **`create_user_fecha(label: String, login: String, fecha: String)`** => Inserta en la BDD una nueva tarea con descripcion, usuario y fecha de terminación a partir de los parámetros.
-- **`delete(id: Long)`** => Elimina la tarea con el id pasado como parámetro, en caso de que existiera.
+###Controlador
 
-###Capa Controlador
+En esta capa se han creado 3 Forms diferentes a la hora de hacer algunas peticiones POST. Son los siguientes:
+- **`TaskCategoriaForm`** => Compuesto por los campos 'label','fecha', y 'categoria'.
+- **`TaskDataForm`** => Compuesto por los campos 'label' y 'fecha'.
+- **`TaskDataForm`** => Compuesto el campo 'categoria'. 
 
-- **`index = Action`** => Accede a la Vista y muestra todas las tareas de la BDD en un taskForm. Se envia un codigo http 200 oK.  
+
+A continuación se detallan las funciones implementadas en esta capa junto con las rutas que utilizan para su ejecución.
+
+- **`newCategoriaUser(login: String) = Action`** => Utiliza `categoriaForm`. Esta función se encarga de crear una categoria asociada a un usuario. Comprueba que el usuario existe mediante la función `existeUser(login)`, en caso negativo devuelve un código 404 NotFound con un mensaje de error, en caso afirmativo continúa y comprueba si el usuario ya tenia asociada esa categoría mendiante la función `comprueba_categoria_user(login,categoria)`, en caso afirmativo devuelve un código 404 NotFound y en caso negativo continúa la ejecución y finalmente invoca a la función `create_categoria_user(login,categoria)` y se envía un código 201 Created  .
 ```sh 
-GET  /   controllers.Application.index
+POST    /:login/NuevaCategoria      controllers.Application.newCategoriaUser(login: String)
 ```
-- **`consultaTask(id: Long) = Action`** => Esta funcion se encarga de mostrar la tarea pasada por parámetro en formato json. En caso de que no existiera el id de tarea devolvería un código 404 con el mensaje "No existe una tarea con ese id". En su cuerpo se realiza la invocación de la función de la capa de modelo `consultaTarea(id)` anteriormente descrita. Se envia un código http 200 oK.
+- **`newTaskCategoria(login: String, categoria: String) = Action`** => Utiliza `taskDataForm`. Esta función se encarga de crear una tarea con los campos 'label','usuario','fecha' y 'categoría'. Comprueba que el usuario existe mediante la función `existeUser`, en caso negarivo devuelve un código 404 NotFound junto con un mensaje de error, en caso afirmativo continúa y comprueba si el usuario tiene asociada la categoría mediante la función `comprueba_categoria_user(login,categoria)`, en caso negativo devuelve un código 404 NotFound, sino continúa y comprueba si el formato de la fecha es correcto mediante la función `formatoFechaPost(fecha)`, en caso negativo devuelve un código 4040 NotFound, de lo contrario y para finalizar realiza la inserción mediante la función `create_task_categoria(label,login,fecha,categoria)` y devuelve un código de estado 201 Created.
 ```sh 
-GET  /tasks/:id   controllers.Application.consultaTask(id: Long)
+POST    /:login/:categoria/tasks    controllers.Application.newTaskCategoria(login: String, categoria: String)
 ```
-- **`tasks = Action`** => Se encarga de mostrar todas las tareas de la BDD creadas por el usuario anónimo *Magic* en formato json invocando a la función de la capa de modelo `all_magic` anteriormente descrita. Se envia un código 200 oK.
+- **`modificarTask(id: Long,login: String,categoria: String) = Action`** => Utiliza taskCategoriaForm. Esta función se encarga de modificar una tarea de un usuario en una determinada categoría. Comprueba que el usuario existe mediante la función `existeUser`, en caso negarivo devuelve un código 404 NotFound junto con un mensaje de error, en caso afirmativo continúa y comprueba si el usuario tiene asociada la categoría mediante la función `comprueba_categoria_user(login,categoria)`, en caso negativo devuelve un código 404 NotFound, sino continúa y comprueba si el id de la taréa existe en esa categoría mediante la función `consultaTareaCategoriaId(login,categoria,id)` en caso negativo devuelve un código 404 NotFound, sino continúa y comprueba que el formato de fecha es correcto mediante la función `formatoFechaPost(fecha)`, en el caso de no serlo devuelve 404 NotFound, sino continúa y comprueba que la categoría a la que se quiere modficar la tarea esta asociada al usuario en cuestión mediante la función `comprueba_categoria_user(login,categoria)`, en caso negativo devuelve 404 NotFound, sino finalmente se modifica la tarea mediante la función `modificar_task(id,label,fecha,categoria)` y se devuelve un 201 Created.
 ```sh 
-GET  /tasks   controllers.Application.tasks
+POST   /:login/:categoria/tasks/:id controllers.Application.modificarTask(id: Long,login: String,categoria: String)
 ```
-- **`consultaTaskUser(login: String) = Action`**=> Devuelve en formato json las tareas del usuario pasado como parámetro. Primero se comprueba que el usuario existe invocando a la función `existeUser(login)` y en el caso afirmativo se invoca a la función `all_user(login)` y se envia un código 200 oK. En caso de que el usuario pasado como parámetro no exista se envía un código 404 con el mensaje "El usuario no existe".
+- **`consultaTaskUserCategoria(login: String, categoria : String) = Action`**=> Esta función devuelve un json con las tareas de un usuario en una determinada categoría. Comprueba si el usuario existe mediante la función `existeUser(login)`, en caso negativo devuelve 404 NotFound, sino comprueba si el usuario tiene asociada la categoria mediante la función `comprueba_categoria_user(login,categoria)`, en caso negativo devuelve un código 404 NotFound, sino finalmente se invoca a la función `consultaTareaCategoria(login,categoria)` que devuelve la lista de tareas y se parsea a JSON para luego enviarlos junto con un código 200 OK.
 ```sh 
-GET  /:login/tasks  vcontrollers.Application.consultaTaskUser(login: String)
-```
-- **`consultaTaskUserFecha(login: String, fecha: String) = Action`**=> Devuelve en formato json las tareas del usuario pasado como parámetro con fecha de finalización igual que la pasada a la función. Se comprueba si el usuario existe mediante la función `existeUser(login)`y si el formato de la fecha es correcto mediante la función `formatoFecha(fecha)`, en caso afirmativo se parsea el String de fecha ,se invoca a la función `all_user_fecha(login,fechaAux)` y se envía un código 200 oK. En caso de que el usuario no exista o la fecha esté mal formateada se envía un 404 con el mensaje "El usuario no existe o la fecha está mal construida (dd-MM-yyyy).
-```sh 
-GET  /:login/tasks/:fecha   controllers.Application.consultaTaskUserFecha(login: String, fecha: String)
-```
-- **`consultaTaskUserFechaOrden(login: String, fecha: String) = Action`**=> Devuelve en formato json las tareas del usuario pasado como parámetro con fecha de finalización igual o mayor que la pasada a la función. Se comprueba si el usuario existe mediante la función `existeUser(login)`y si el formato de la fecha es correcto mediante la función `formatoFecha(fecha)`, en caso afirmativo se parsea el String de fecha ,se invoca a la función `all_user_fecha_orden(login,fechaAux)` y se envía un código 200 oK. En caso de que el usuario no exista o la fecha esté mal formateada se envía un 404 con el mensaje "El usuario no existe o la fecha está mal construida (dd-MM-yyyy).
-```sh 
-GET  /:login/tasks/:fecha/orden   controllers.Application.consultaTaskUserFechaOrden(login: String, fecha: String)
-```
-- **`newTaskUserFecha(login: String, fecha: String) = Action`** => Función que se utiliza para crear una nueva tarea para un usuario con una determinada fecha de finalización. En primer lugar se comprueba si la fecha esta bien formateada mediante la función `formatoFechaPost(fecha)`y si el usuario existe, en caso afirmativo se llama a la función `create_user_fecha(label,login,fecha)` anteriormente descrita en la capa modelo y luego se devuelve un json con los datos obtenido de la funcion `consultaTarea(id)` que recibe como parámetro la función `consultaId` que devolverá el id de la tarea recién creada. En caso de éxito se enviará un código 201 Created, en caso de fracaso se envia un 404 con el mensaje de error "El usuario no existe o el formato de la fecha es incorrecto (yyyy-MM-dd)".
-```sh
-POST  /:login/tasks/:fecha   controllers.Application.newTaskUserFecha(login: String, fecha: String)
-```
-- **`newTasUser(login: String) = Action`** => Función que se utiliza para crear una nueva tarea para un usuario. En su cuerpo se invoca a la función `create_user(label, login)` que creará en la BDD el nuevo registro y a continuación se devuelve un json con la información obtenida de la función `consultaTarea(id)` en la que se le pasa como parámetro el id de la tarea recién creada obtenido de la función `consultaId` y se envía un código 201 created. En caso de que el usuario no existiera se devolvería el código de error 404 con el mensaje "El usuario no existe".
-```sh
-POST  /:login/tasks   controllers.Application.newTaskUser(login: String)
-```
-- **`newTask = Action`** => Función que se utiliza para crear una nueva tarea al usuario anónimo Magic. Se invoca a la función `create(label)` y a continuación se envia un json junto con el código 201 created que con contiene el resultado obtenido al invocar la  función `consultaTask(id)` donde el id es el de la última tarea creada que se saca de la función `consultaId`.
-```sh
-POST  /tasks   controllers.Application.newTask
-```
-- **`deleteTask(id: Long) = Action`** => Elimina la tarea pasada como parámetro. En primer lugar se comprueba que la tarea existe en cuyo caso se invoca a `delete(id)` y se hace una redireccion a tasks. En caso de no poder eliminar la tarea se envia un código de error 404 con el mensaje "La tarea que intentas eliminar no existe".
-```sh
-DELETE  /tasks/:id                  controllers.Application.deleteTask(id: Long)
+GET    /:login/:categoria/tasks     controllers.Application.consultaTaskUserCategoria(login: String,categoria: String)
 ```
