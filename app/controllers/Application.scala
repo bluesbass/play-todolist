@@ -220,8 +220,6 @@ object Application extends Controller {
       errors => BadRequest("Error en la peticion"),
       taskCateg => {
 
-        val id = Task.consultaId
-        val resultado = Task.consultaTarea(id)
         val formato = new SimpleDateFormat("yyyy-MM-dd")
         val fecha = formato.parse(taskCateg.fecha)
 
@@ -229,8 +227,8 @@ object Application extends Controller {
           NotFound("El usuario "+login+" no existe")
         else if(Task.comprueba_categoria_user(login,categoria)==0)
           NotFound("El usuario "+login+" no tiene asociada la categoria "+categoria)
-        else if(resultado==Nil)
-          NotFound("La tarea con id "+id+" no existe")
+        else if(Task.consultaTareaCategoriaId(login,categoria,id)==0)
+          NotFound("La tarea con id "+id+" no existe en la categoria"+categoria)
         else if(Task.formatoFechaPost(taskCateg.fecha)!=true)
           NotFound("El formato de la fecha "+taskCateg.fecha+" es incorrecto (yyyy-MM-dd)")
         else if(Task.comprueba_categoria_user(login,taskCateg.categoria)==0)

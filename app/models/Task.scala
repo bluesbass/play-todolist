@@ -190,5 +190,8 @@ object Task {
     def consultaTareaCategoria(usuario: String, categoria: String): List[Task] = DB.withConnection { implicit c =>
       SQL("select * from task where usuario={usuario} and categoria={categoria}").on('usuario -> usuario, 'categoria -> categoria).as(task *)
    }
-  
+
+   def consultaTareaCategoriaId(usuario: String, categoria: String, id: Long): Long = DB.withConnection { implicit c =>
+      SQL("select count(*) from task where usuario={usuario} and categoria={categoria} and id={id}").on('usuario -> usuario, 'categoria -> categoria, 'id ->id).as(scalar[Long].single)
+  }
 }
