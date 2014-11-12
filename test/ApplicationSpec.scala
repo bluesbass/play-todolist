@@ -870,6 +870,26 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Listar tareas de un usuario inexistente dentro de una determinada categoria - Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Pascualinex"
+        val fecha = "2014-11-07"              
+        val categoria = "Software"
+        val label = "Test tarea categoria"
+        val label2 = "Test tarea categoria 2"
+
+
+        val Some(result) = route(FakeRequest(GET, "/"+login+"/"+categoria+"/tasks"))
+
+        contentAsString(result) must equalTo("El usuario "+login+" no existe")
+
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
   }
+
 
 }
