@@ -757,6 +757,45 @@ class ApplicationSpec extends Specification with JsonMatchers{
       }
     }
 
+    "Modificar una tarea  de un usuario con un formato de fecha incorrecto- Feature 4" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+
+        val login = "Jesus"
+        val fecha = "2014-11-07"              
+        val fecha2 = "10-11-2014"              
+        val categoria = "Software"
+        val categoria2 = "Hardware"
+        val label = "Test"
+        val label2 = "Test tarea categoria modificada"
+
+        Task.eliminar_categoria_user(login,categoria)
+
+        val resultaux2 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria))  
+          )
+
+        val resultaux3 = Application.newCategoriaUser(login)(  
+          FakeRequest(POST, "/"+login+"/NuevaCategoria").withFormUrlEncodedBody(("categoria",categoria2))  
+          )
+
+        val resultaux = Application.newTaskCategoria(login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks").withFormUrlEncodedBody(("label",label),("fecha",fecha))  
+          ) 
+
+        val id = Task.consultaId
+
+        val result = Application.modificarTask(id,login,categoria)(  
+          FakeRequest(POST, "/"+login+"/"+categoria+"/tasks/"+id).withFormUrlEncodedBody(("label",label2),("fecha",fecha2),("categoria",categoria2))  
+          )        
+
+        contentAsString(result) must equalTo("El formato de la fecha "+fecha2+" es incorrecto (yyyy-MM-dd)")
+        status(result) must equalTo(NOT_FOUND)
+
+      }
+    }
+
+    
+
   }
 
 }
